@@ -1,17 +1,15 @@
 package cn.org.rapid_framework.generator;
 
-import java.io.File;
+import cn.org.rapid_framework.generator.util.GLogger;
+import cn.org.rapid_framework.generator.util.PropertiesHelper;
+import cn.org.rapid_framework.generator.util.PropertyPlaceholderHelper;
+import cn.org.rapid_framework.generator.util.PropertyPlaceholderHelper.PropertyPlaceholderConfigurerResolver;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
-
-import cn.org.rapid_framework.generator.util.GLogger;
-import cn.org.rapid_framework.generator.util.PropertiesHelper;
-import cn.org.rapid_framework.generator.util.PropertyPlaceholderHelper;
-import cn.org.rapid_framework.generator.util.PropertyPlaceholderHelper.PropertyPlaceholderConfigurerResolver;
-import cn.org.rapid_framework.generator.util.typemapping.DatabaseTypeUtils;
 
 
 /**
@@ -23,7 +21,7 @@ import cn.org.rapid_framework.generator.util.typemapping.DatabaseTypeUtils;
 public class GeneratorProperties {
 	static PropertyPlaceholderHelper helper = new PropertyPlaceholderHelper("${", "}", ":", false);
 	
-	static final String PROPERTIES_FILE_NAMES[] = new String[]{"generator.properties","generator.xml"};
+	static final String PROPERTIES_FILE_NAMES[] = new String[]{"generator.properties","generator.xml","custom-generator.properties","custom-generator.xml"};
 	
 	static PropertiesHelper props = new PropertiesHelper(new Properties(),true);
 	private GeneratorProperties(){}
@@ -33,32 +31,14 @@ public class GeneratorProperties {
 	
 	public static void reload() {
 		try {
-			GLogger.println("Start Load GeneratorPropeties from classpath:"+Arrays.toString(PROPERTIES_FILE_NAMES));
+			GLogger.println("Start Load GeneratorPropeties from classpath:" + Arrays.toString(PROPERTIES_FILE_NAMES));
 			Properties p = new Properties();
-			String[] loadedFiles = PropertiesHelper.loadAllPropertiesFromClassLoader(p,PROPERTIES_FILE_NAMES);
-			GLogger.println("GeneratorPropeties Load Success,files:"+Arrays.toString(loadedFiles));
-			
-			setSepicalProperties(p, loadedFiles);
-			
+			String[] loadedFiles = PropertiesHelper.loadAllPropertiesFromClassLoader(p, PROPERTIES_FILE_NAMES);
+			GLogger.println("GeneratorPropeties Load Success,files:" + Arrays.toString(loadedFiles));
 			setProperties(p);
 		}catch(IOException e) {
 			throw new RuntimeException("Load "+PROPERTIES_FILE_NAMES+" error",e);
 		}
-	}
-
-	private static void setSepicalProperties(Properties p, String[] loadedFiles) {
-		p.put("databaseType", getDatabaseType(p,"databaseType"));
-		if(loadedFiles != null && loadedFiles.length > 0) {
-			String basedir = p.getProperty("basedir");
-			if(basedir != null && basedir.startsWith(".")) {
-				p.setProperty("basedir", new File(new File(loadedFiles[0]).getParent(),basedir).getAbsolutePath());
-			}
-		}
-	}
-	
-	private static String getDatabaseType(Properties p,String key) {
-		String databaseType = DatabaseTypeUtils.getDatabaseTypeByJdbcDriver(p.getProperty("jdbc.driver"));
-		return p.getProperty(key,databaseType == null ? "" : databaseType);
 	}
 	
 	// 自动替换所有value从 com.company 替换为 com/company,并设置key = key+"_dir"后缀
@@ -111,7 +91,7 @@ public class GeneratorProperties {
 	public static void setProperty(String key,String value) {
 		value = resolveProperty(value,getProperties());
 		key = resolveProperty(key,getProperties());
-	    GLogger.println("[setProperty()] "+key+"="+value);
+	    GLogger.println("[setProperty()] " + key + "=" + value);
 		getHelper().setProperty(key, value);
 		String dir_value = value.toString().replace('.', '/');
 		getHelper().getProperties().put(key+"_dir", dir_value);
@@ -137,7 +117,7 @@ public class GeneratorProperties {
 		props = new PropertiesHelper(resolveProperties(inputProps),true);
         for(Iterator it = props.entrySet().iterator();it.hasNext();) {
             Map.Entry entry = (Map.Entry)it.next();
-            GLogger.println("[Property] "+entry.getKey()+"="+entry.getValue());
+            GLogger.println("[Property] " + entry.getKey() + "=" + entry.getValue());
         }
         GLogger.println("");
         

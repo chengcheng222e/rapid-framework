@@ -91,7 +91,7 @@ public class BytecodeReadingParanamer implements Paranamer {
         InputStream byteCodeStream = getClassAsStream(declaringClass);
         if (byteCodeStream == null) {
             if (throwExceptionIfMissing) {
-                throw new ParameterNamesNotFoundException("Unable to get class bytes");
+                throw new cn.org.rapid_framework.generator.util.paranamer.ParameterNamesNotFoundException("Unable to get class bytes");
             } else {
                 return Paranamer.EMPTY_NAMES;
             }
@@ -108,7 +108,7 @@ public class BytecodeReadingParanamer implements Paranamer {
             return parameterNamesForMethod;
         } catch (IOException e) {
             if (throwExceptionIfMissing) {
-                throw new ParameterNamesNotFoundException("IoException while reading class bytes", e);
+                throw new cn.org.rapid_framework.generator.util.paranamer.ParameterNamesNotFoundException("IoException while reading class bytes", e);
             } else {
                 return Paranamer.EMPTY_NAMES;
             }
@@ -129,7 +129,7 @@ public class BytecodeReadingParanamer implements Paranamer {
         // multiple times
         InputStream asStream = classLoader.getResourceAsStream(name);
         if (asStream == null) {
-            asStream = BytecodeReadingParanamer.class.getResourceAsStream(name);
+            asStream = cn.org.rapid_framework.generator.util.paranamer.BytecodeReadingParanamer.class.getResourceAsStream(name);
         }
         return asStream;
     }

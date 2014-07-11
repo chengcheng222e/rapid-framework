@@ -1,5 +1,8 @@
 package cn.org.rapid_framework.generator.util.paranamer;
 
+import cn.org.rapid_framework.generator.util.IOHelper;
+import cn.org.rapid_framework.generator.util.StringHelper;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.AccessibleObject;
@@ -10,20 +13,18 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import cn.org.rapid_framework.generator.util.IOHelper;
-import cn.org.rapid_framework.generator.util.StringHelper;
 /**
  * get parameter names from java source file
  * @author badqiu
  */
-public class JavaSourceParanamer implements Paranamer{
+public class JavaSourceParanamer implements cn.org.rapid_framework.generator.util.paranamer.Paranamer {
     private ClassLoader classLoader;
-    
+
     public JavaSourceParanamer(ClassLoader classLoader) {
         if(classLoader == null) throw new IllegalArgumentException("'classLoader' must be not null");
     	this.classLoader = classLoader;
     }
-    
+
     public String[] lookupParameterNames(AccessibleObject methodOrConstructor) {
         return lookupParameterNames(methodOrConstructor,true);
     }
@@ -42,15 +43,15 @@ public class JavaSourceParanamer implements Paranamer{
 	        }else {
 	            throw new IllegalArgumentException("unknow AccessibleObject"+methodOrConstructor+",must be Method or Constructor");
 	        }
-	        
+
 	        InputStream javaSourceInputStream = classLoader.getResourceAsStream(javaSource);
 	        try {
 	        	if(javaSourceInputStream != null) {
 	        		return parser.parseJavaFileForParamNames(methodOrConstructor, IOHelper.toString(javaSourceInputStream));
 	        	}
-	        	return Paranamer.EMPTY_NAMES;
+	        	return cn.org.rapid_framework.generator.util.paranamer.Paranamer.EMPTY_NAMES;
 	        }finally {
-	        	if(javaSourceInputStream != null) 
+	        	if(javaSourceInputStream != null)
 	        		javaSourceInputStream.close();
 	        }
         }catch(IOException e) {

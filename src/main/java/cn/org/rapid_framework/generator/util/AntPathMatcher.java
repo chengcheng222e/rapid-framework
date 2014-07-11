@@ -21,7 +21,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 
-
 /**
  * PathMatcher implementation for Ant-style path patterns. Examples are provided below.
  *
@@ -214,7 +213,7 @@ public class AntPathMatcher  {
 	 * @return <code>true</code> if the string matches against the pattern, or <code>false</code> otherwise.
 	 */
 	private boolean matchStrings(String pattern, String str, Map<String, String> uriTemplateVariables) {
-		AntPathStringMatcher matcher = new AntPathStringMatcher(pattern, str, uriTemplateVariables);
+		cn.org.rapid_framework.generator.util.AntPathStringMatcher matcher = new cn.org.rapid_framework.generator.util.AntPathStringMatcher(pattern, str, uriTemplateVariables);
 		return matcher.matchStrings();
 	}
 

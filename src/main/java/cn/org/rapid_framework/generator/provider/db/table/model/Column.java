@@ -1,9 +1,6 @@
 package cn.org.rapid_framework.generator.provider.db.table.model;
 
 
-
-import java.util.List;
-
 import cn.org.rapid_framework.generator.GeneratorProperties;
 import cn.org.rapid_framework.generator.provider.db.table.model.ForeignKey.ReferenceKey;
 import cn.org.rapid_framework.generator.provider.db.table.model.util.ColumnHelper;
@@ -15,16 +12,18 @@ import cn.org.rapid_framework.generator.util.typemapping.DatabaseDataTypesUtils;
 import cn.org.rapid_framework.generator.util.typemapping.JavaPrimitiveTypeMapping;
 import cn.org.rapid_framework.generator.util.typemapping.JdbcType;
 
+import java.util.List;
+
 /**
  * 用于生成代码的Columb对象.对应数据库表column
  * @author badqiu
  * @email badqiu(a)gmail.com
  */
-public class Column implements java.io.Serializable,Cloneable{
+public class Column {
 	/**
 	 * Reference to the containing table
 	 */
-	private Table _table;
+	private cn.org.rapid_framework.generator.provider.db.table.model.Table _table;
 
 	/**
 	 * The java.sql.Types type
@@ -80,12 +79,12 @@ public class Column implements java.io.Serializable,Cloneable{
 	 * Null if the DB reports no default value
 	 */
 	private String _defaultValue;
-	
+
 	/**
 	 * The comments of column
 	 */
 	private String _remarks;
-			
+
 	/**
 	 * @param table
 	 * @param sqlType
@@ -100,11 +99,10 @@ public class Column implements java.io.Serializable,Cloneable{
 	 * @param defaultValue
 	 * @param remarks
 	 */
-	public Column(Table table, int sqlType, String sqlTypeName,
+	public Column(cn.org.rapid_framework.generator.provider.db.table.model.Table table, int sqlType, String sqlTypeName,
 			String sqlName, int size, int decimalDigits, boolean isPk,
 			boolean isNullable, boolean isIndexed, boolean isUnique,
 			String defaultValue,String remarks) {
-		if(sqlName == null) throw new NullPointerException();
 		_table = table;
 		_sqlType = sqlType;
 		_sqlName = sqlName;
@@ -117,17 +115,17 @@ public class Column implements java.io.Serializable,Cloneable{
 		_isUnique = isUnique;
 		_defaultValue = defaultValue;
 		_remarks = remarks;
-		
+
 		GLogger.trace(sqlName + " isPk -> " + _isPk);
-		
+
 		initOtherProperties();
 	}
 
-	public Column(Column c) {
+	public Column(cn.org.rapid_framework.generator.provider.db.table.model.Column c) {
         this(c.getTable(),
            c.getSqlType(),
            c.getSqlTypeName(),
-           c.getSqlName(),
+           c.getColumnName(),
            c.getSize(),
            c.getDecimalDigits(),
            c.isPk(),
@@ -137,13 +135,13 @@ public class Column implements java.io.Serializable,Cloneable{
            c.getDefaultValue(),
            c.getRemarks());
 	}
-	
+
 	public Column() {
 	}
-	
+
 	/**
 	 * Gets the SqlType attribute of the Column object
-	 * 
+	 *
 	 * @return The SqlType value
 	 */
 	public int getSqlType() {
@@ -152,7 +150,7 @@ public class Column implements java.io.Serializable,Cloneable{
 
 	/**
 	 * Gets the Table attribute of the DbColumn object
-	 * 
+	 *
 	 * @return The Table value
 	 */
 	public Table getTable() {
@@ -192,7 +190,6 @@ public class Column implements java.io.Serializable,Cloneable{
 	 * @return The SqlName value
 	 */
 	public String getSqlName() {
-		if(_sqlName == null) throw new NullPointerException();
 		return _sqlName;
 	}
 
@@ -250,11 +247,11 @@ public class Column implements java.io.Serializable,Cloneable{
 	public  String getDefaultValue() {
 		return _defaultValue;
 	}
-
-    /**
-     * 列的数据库备注
-     * @return
-     */
+	
+	/**
+	 * 列的数据库备注
+	 * @return
+	 */
 	public  String getRemarks() {
 		return _remarks;
 	}
@@ -305,8 +302,8 @@ public class Column implements java.io.Serializable,Cloneable{
 	 */
 	public boolean equals(Object o) {
 		if(this == o) return true;
-		if(o instanceof Column) {
-			Column other = (Column)o;
+		if(o instanceof cn.org.rapid_framework.generator.provider.db.table.model.Column) {
+			cn.org.rapid_framework.generator.provider.db.table.model.Column other = (cn.org.rapid_framework.generator.provider.db.table.model.Column)o;
 			if(getSqlName().equals(other.getSqlName())) {
 				return true;
 			}
@@ -325,15 +322,6 @@ public class Column implements java.io.Serializable,Cloneable{
 		return getSqlName();
 	}
 
-	public Object clone() {
-		try {
-			return super.clone();
-		} catch (CloneNotSupportedException e) {
-			//ignore
-			return null;
-		}
-	}
-	
 	/**
 	 * Describe what the method does
 	 * 
@@ -358,66 +346,61 @@ public class Column implements java.io.Serializable,Cloneable{
 	public String getUnderscoreName() {
 		return getSqlName().toLowerCase();
 	}
-
-    /** 
-     * 根据列名，根据sqlName计算得出，示例值： BirthDate
-     **/
+	
+	/** 
+	 * 根据列名，根据sqlName计算得出，示例值： BirthDate
+	 **/
 	public String getColumnName() {
 		return columnName;
 	}
 
-    /** 
-     * 第一个字母小写的columName,等价于: StringHelper.uncapitalize(getColumnName()),示例值: birthDate
-     **/
+	/** 
+	 * 第一个字母小写的columName,等价于: StringHelper.uncapitalize(getColumnName()),示例值: birthDate
+	 **/
 	public String getColumnNameFirstLower() {
 		return StringHelper.uncapitalize(getColumnName());
 	}
 
-    /** 
-     * 全部小写的columName,等价于: getColumnName().toLowerCase(),示例值: birthdate
-     **/
+	/** 
+	 * 全部小写的columName,等价于: getColumnName().toLowerCase(),示例值: birthdate
+	 **/
 	public String getColumnNameLowerCase() {
 		return getColumnName().toLowerCase();
 	}
-
-    /**
-     * 使用 getColumnNameFirstLower()替换
-     * @deprecated use getColumnNameFirstLower() instead
-     */
+	
+	/**
+	 * 使用 getColumnNameFirstLower()替换
+	 * @deprecated use getColumnNameFirstLower() instead
+	 */
 	public String getColumnNameLower() {
 		return getColumnNameFirstLower();
 	}
 
-    /**
-     * 得到 jdbcSqlType类型名称，示例值:VARCHAR,DECIMAL, 现Ibatis3使用该属性
-     */
-	public String getJdbcSqlTypeName() {
-		return getJdbcType();
-	}
-	
 	/**
-     * 得到 jdbcSqlType类型名称，示例值:VARCHAR,DECIMAL, 现Ibatis3使用该属性
-     */
-    public String getJdbcType() {
-        String result = JdbcType.getJdbcSqlTypeName(getSqlType());
-        return result;
-    }
-    /**
-     * 列的别名，等价于：getRemarks().isEmpty() ? getColumnNameFirstLower() : getRemarks()
-     * 
-     * <br />
-     * 示例值: birthDate
-     */
+	 * 使用 jdbcSqlType类型名称，示例值:VARCHAR,DECIMAL, 现Ibatis3使用该属性
+	 */
+	public String getJdbcSqlTypeName() {
+		String result = JdbcType.getJdbcSqlTypeName(getSqlType());
+		//if(result == null) throw new RuntimeException("jdbcSqlTypeName is null column:"+getSqlName()+" sqlType:"+getSqlType());
+		return result;
+	}
+
+	/**
+	 * 列的别名，等价于：getRemarks().isEmpty() ? getColumnNameFirstLower() : getRemarks()
+	 * 
+	 * <br />
+	 * 示例值: birthDate
+	 */
 	public String getColumnAlias() {
 		return columnAlias;
 	}
 
-    /**
-     * 列的常量名称
-     * 
-     * <br />
-     * 示例值: BIRTH_DATE
-     */
+	/**
+	 * 列的常量名称
+	 * 
+	 * <br />
+	 * 示例值: BIRTH_DATE
+	 */
 	public String getConstantName() {
 		return StringHelper.toUnderscoreName(getColumnName()).toUpperCase();
 	}
@@ -466,7 +449,7 @@ public class Column implements java.io.Serializable,Cloneable{
 	
 	/** 列是否是Number类型 */
 	public boolean getIsNumberColumn() {
-		return DatabaseDataTypesUtils.isFloatNumber(getJavaType()) 
+		return DatabaseDataTypesUtils.isFloatNumber(getJavaType())
 			|| DatabaseDataTypesUtils.isIntegerNumber(getJavaType());
 	}
 	
@@ -479,41 +462,27 @@ public class Column implements java.io.Serializable,Cloneable{
 	public boolean isHtmlHidden() {
 		return isPk() && _table.isSingleId();
 	}
-
-    /**
-     * 得到对应的javaType,如java.lang.String,
-     * @return
-     */
+	
+	/**
+	 * 得到对应的javaType,如java.lang.String,
+	 * @return
+	 */
 	public String getJavaType() {
 		return javaType;
 	}
-
-    /**
-     * 得到简短的javaType的名称，如com.company.model.UserInfo,将返回 UserInfo
-     * @return
-     */
-	public String getSimpleJavaType() {
-		return StringHelper.getJavaClassSimpleName(getJavaType());
-	}
+	
 	/**
-     * 得到尽可能简短的javaType的名称，如果是java.lang.String,将返回String, 如com.company.model.UserInfo,将返回 com.company.model.UserInfo
-     * @return
-     */
-	public String getPossibleShortJavaType() {
-	    if(getJavaType().startsWith("java.lang.")) {
-	        return getSimpleJavaType();
-	    }else {
-	        return getJavaType();
-	    }
-    }
-
-	public boolean isPrimitive() {
-	    return JavaPrimitiveTypeMapping.getWrapperTypeOrNull(getJavaType()) != null;
+	 * 得到简短的java.lang.javaType,如java.lang.String将返回String,而非java.lang包的,将直接返回getJavaType()
+	 * @return
+	 */
+	public String getSimpleJavaType() {
+		return StringHelper.removePrefix(getJavaType(), "java.lang.");
 	}
-    /**
-     * 得到原生类型的javaType,如java.lang.Integer将返回int,而非原生类型,将直接返回getSimpleJavaType()
-     * @return
-     */	
+	
+	/**
+	 * 得到原生类型的javaType,如java.lang.Integer将返回int,而非原生类型,将直接返回getSimpleJavaType()
+	 * @return
+	 */	
 	public String getPrimitiveJavaType() {
 		return JavaPrimitiveTypeMapping.getPrimitiveType(getSimpleJavaType());
 	}
@@ -579,8 +548,6 @@ public class Column implements java.io.Serializable,Cloneable{
 	public void setEnumClassName(String enumClassName) {
 		this.enumClassName = enumClassName;
 	}
-	
-	
 
 //	public void setBelongsTo(String foreignKey) {
 //		ReferenceKey ref = ReferenceKey.fromString(foreignKey);
@@ -597,20 +564,11 @@ public class Column implements java.io.Serializable,Cloneable{
 		return ReferenceKey.toString(hasOne);
 	}
 	
-	/** nullValue for ibatis sqlmap: <result property="age" column="age" nullValue="0"  /> */
-	public String getNullValue() {
-		return JavaPrimitiveTypeMapping.getDefaultValue(getJavaType());
-	}
-
-	public boolean isHasNullValue() {
-		return JavaPrimitiveTypeMapping.getWrapperTypeOrNull(getJavaType()) != null;
-	}
-	
-    /**
-     * 设置many-to-one,foreignKey格式: fk_table_name(fk_column) 或者 schema_name.fk_table_name(fk_column)
-     * @param foreignKey
-     * @return
-     */
+	/**
+	 * 设置many-to-one,foreignKey格式: fk_table_name(fk_column) 或者 schema_name.fk_table_name(fk_column)
+	 * @param foreignKey
+	 * @return
+	 */
 	public void setHasOne(String foreignKey) {
 		hasOne = ReferenceKey.fromString(foreignKey);
 		if(hasOne != null && _table != null) {
@@ -624,12 +582,12 @@ public class Column implements java.io.Serializable,Cloneable{
 	public String getHasMany() {
 		return ReferenceKey.toString(hasMany);
 	}
-
-    /**
-     * 设置one-to-many,foreignKey格式: fk_table_name(fk_column) 或者 schema_name.fk_table_name(fk_column)
-     * @param foreignKey
-     * @return
-     */
+	
+	/**
+	 * 设置one-to-many,foreignKey格式: fk_table_name(fk_column) 或者 schema_name.fk_table_name(fk_column)
+	 * @param foreignKey
+	 * @return
+	 */
 	public void setHasMany(String foreignKey) {
 		hasMany = ReferenceKey.fromString(foreignKey);
 		if(hasMany != null && _table != null) {
@@ -641,18 +599,14 @@ public class Column implements java.io.Serializable,Cloneable{
 
 	private void initOtherProperties() {
 		String normalJdbcJavaType = DatabaseDataTypesUtils.getPreferredJavaType(getSqlType(), getSize(), getDecimalDigits());
-		javaType = GeneratorProperties.getProperty("java_typemapping."+normalJdbcJavaType,normalJdbcJavaType).trim();
+		javaType = GeneratorProperties.getProperty("java_typemapping." + normalJdbcJavaType, normalJdbcJavaType).trim();
 		columnName = StringHelper.makeAllWordFirstLetterUpperCase(StringHelper.toUnderscoreName(getSqlName()));
 		enumClassName = getColumnName()+"Enum";		
-		asType = ActionScriptDataTypesUtils.getPreferredAsType(getJavaType());	
-		columnAlias = StringHelper.removeCrlf(StringHelper.defaultIfEmpty(getRemarks(), getColumnNameFirstLower()));
+		asType = ActionScriptDataTypesUtils.getPreferredAsType(getJavaType());
+		columnAlias = StringHelper.defaultIfEmpty(getRemarks(), getColumnNameFirstLower());
+		columnAlias = StringHelper.removeCrlf(columnAlias);
 		setHibernateValidatorExprssion(ColumnHelper.getHibernateValidatorExpression(this));
 	}
-	
-	/** 删除聚集函数的相关char,示例转换 count(*) => count, max(age) => max_age, sum(income) => sum_income */
-    public static String removeAggregationColumnChars(String columSqlName) {
-        return columSqlName.replace('(', '_').replace(")", "").replace("*", "");
-    }
 	
 	private String enumString = "";
 	private String javaType;

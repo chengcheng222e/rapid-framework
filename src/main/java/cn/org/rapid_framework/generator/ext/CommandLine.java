@@ -1,13 +1,14 @@
 package cn.org.rapid_framework.generator.ext;
 
-import java.io.File;
-import java.util.Scanner;
-
 import cn.org.rapid_framework.generator.GeneratorFacade;
 import cn.org.rapid_framework.generator.GeneratorProperties;
 import cn.org.rapid_framework.generator.util.ArrayHelper;
 import cn.org.rapid_framework.generator.util.StringHelper;
 import cn.org.rapid_framework.generator.util.SystemHelper;
+
+import java.io.File;
+import java.util.Scanner;
+
 /**
  * 命令行工具类,可以直接运行
  * 
@@ -16,13 +17,19 @@ import cn.org.rapid_framework.generator.util.SystemHelper;
 public class CommandLine {
 	
 	public static void main(String[] args) throws Exception {
-		//disable freemarker logging
+
+//        GeneratorFacade g = new GeneratorFacade();
+//        g.deleteOutRootDir();							//删除生成器的输出目录
+
+
+        //disable freemarker logging
 		freemarker.log.Logger.selectLoggerLibrary(freemarker.log.Logger.LIBRARY_NONE);
 		
 		startProcess();
 	}
 
 	private static void startProcess() throws Exception {
+
 		Scanner sc = new Scanner(System.in);
 		System.out.println("templateRootDir:"+new File(getTemplateRootDir()).getAbsolutePath());
 		printUsages();
@@ -47,7 +54,7 @@ public class CommandLine {
 			facade.g.setIncludes(getIncludes(args,1));
 			facade.generateByTable(args[0],getTemplateRootDir());
 			if(SystemHelper.isWindowsOS) {
-			    Runtime.getRuntime().exec("cmd.exe /c start "+GeneratorProperties.getRequiredProperty("outRoot").replace('/', '\\'));
+			    Runtime.getRuntime().exec("cmd.exe /c start "+ GeneratorProperties.getRequiredProperty("outRoot").replace('/', '\\'));
 			}
 		}else if("del".equals(cmd)) {
 			String[] args = nextArguments(sc);
@@ -83,6 +90,6 @@ public class CommandLine {
 	}
 	
 	private static String[] nextArguments(Scanner sc) {
-		return StringHelper.tokenizeToStringArray(sc.nextLine()," ");
+		return StringHelper.tokenizeToStringArray(sc.nextLine(), " ");
 	}
 }

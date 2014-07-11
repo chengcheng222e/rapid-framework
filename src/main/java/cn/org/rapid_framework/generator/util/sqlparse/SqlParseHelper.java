@@ -1,4 +1,9 @@
 package cn.org.rapid_framework.generator.util.sqlparse;
+
+import cn.org.rapid_framework.generator.util.GLogger;
+import cn.org.rapid_framework.generator.util.IOHelper;
+import cn.org.rapid_framework.generator.util.StringHelper;
+
 import java.io.StringReader;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -8,23 +13,17 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import cn.org.rapid_framework.generator.provider.db.table.TableFactory.DatabaseMetaDataUtils;
-import cn.org.rapid_framework.generator.util.GLogger;
-import cn.org.rapid_framework.generator.util.IOHelper;
-import cn.org.rapid_framework.generator.util.StringHelper;
-
 
 public class SqlParseHelper {
 
 	public static class NameWithAlias {
 		private String name;
 		private String alias;
-		public NameWithAlias(String name, String alias) {
-			if(name == null) throw new IllegalArgumentException("name must be not null");
-			if(name.trim().indexOf(' ') >= 0) throw new IllegalArgumentException("error name:"+name);
-			if(alias != null && alias.trim().indexOf(' ') >= 0) throw new IllegalArgumentException("error alias:"+alias);
-			this.name = name.trim();
-			this.alias = alias == null ? null : alias.trim();
+		public NameWithAlias(String tableName, String tableAlias) {
+			if(tableName.trim().indexOf(' ') >= 0) throw new IllegalArgumentException("error name:"+tableName);
+			if(tableAlias != null && tableAlias.trim().indexOf(' ') >= 0) throw new IllegalArgumentException("error alias:"+tableAlias);
+			this.name = tableName.trim();
+			this.alias = tableAlias == null ? null : tableAlias.trim();
 		} 
 		public String getName() {
 			return name;
@@ -59,7 +58,7 @@ public class SqlParseHelper {
 		}
 	}
 	
-	static Pattern fromRegex = Pattern.compile("(\\sfrom\\s+)([,\\w]+)",
+	static Pattern from = Pattern.compile("(from\\s+)([,\\w]+)",
 			Pattern.CASE_INSENSITIVE);
 	static Pattern join = Pattern.compile("(join\\s+)(\\w+)(as)?(\\w*)",
 			Pattern.CASE_INSENSITIVE);
@@ -71,28 +70,25 @@ public class SqlParseHelper {
 	public static Set<NameWithAlias> getTableNamesByQuery(String sql) {
 		sql = sql.trim();
 		Set<NameWithAlias> result = new LinkedHashSet();
-		Matcher m = fromRegex.matcher(sql);
+		Matcher m = from.matcher(sql);
 		if (m.find()) {
 			String from = getFromClauses(sql);
-			if(from.matches("(?ims).*\\sfrom\\s.*")) {
-				return getTableNamesByQuery(from);
-			}
 			if(from.indexOf(',') >= 0) {
 				//逗号分隔的多表
 				String[] array = StringHelper.tokenizeToStringArray(from, ",");
 				for(String s : array) {
-					result.add(parseTableSqlAlias(s));
+					result.add(parseSqlAlias(s));
 				}
 			}else if(from.indexOf("join") >= 0) {
 				//join的多表
-				String removedFrom = StringHelper.removeMany(from.toLowerCase(),"inner","full","left","right","outer");
+				String removedFrom = StringHelper.removeMany(from.toLowerCase(), "inner", "full", "left", "right", "outer");
 				String[] joins = removedFrom.split("join");
 				for(String s : joins) {
-					result.add(parseTableSqlAlias(s));
+					result.add(parseSqlAlias(s));
 				}
 			}else {
 				//单表
-				result.add(parseTableSqlAlias(from));
+				result.add(parseSqlAlias(from));
 			}
 		}
 
@@ -109,21 +105,16 @@ public class SqlParseHelper {
 	}
 		
 	/** 解析sql的别名,如 user as u,将返回 user及u */
-	public static NameWithAlias parseTableSqlAlias(String str) {
-		try {
-			str = str.trim();
-			String[] array = str.split("\\sas\\s");
-			if(array.length >= 2 && str.matches("^[\\w_]+\\s+as\\s+[_\\w]+.*")) {
-				return new NameWithAlias(array[0],StringHelper.tokenizeToStringArray(array[1], " \n\t")[0]);
-			}
-			array = StringHelper.tokenizeToStringArray(str, " \n\t");
-			if(array.length >= 2 && str.matches("^[\\w_]+\\s+[_\\w]+.*")) {
-				return new NameWithAlias(array[0], array[1]);
-			}
-			return new NameWithAlias(StringHelper.getByRegex(str.trim(),"^[\\w_]+"),StringHelper.getByRegex(str.trim(),"^[\\w_]+\\s+([\\w_]+)",1));
-		}catch(Exception e) {
-			throw new IllegalArgumentException("parseTableSqlAlias error,str:"+str,e);
+	public static NameWithAlias parseSqlAlias(String str) {
+		String[] array = str.split("\\sas\\s");
+		if(array.length >= 2) {
+			return new NameWithAlias(array[0], StringHelper.tokenizeToStringArray(array[1], " \n\t")[0]);
 		}
+		array = StringHelper.tokenizeToStringArray(str, " \n\t");
+		if(array.length >= 2) {
+			return new NameWithAlias(array[0], array[1]);
+		}
+		return new NameWithAlias(str.trim(),null);
 	}
 
 
@@ -149,26 +140,10 @@ public class SqlParseHelper {
 		if(result == null) {
 			result = getColumnNameByRightCondition(sql, column, "\\s+between\\s.+\\sand\\s+");
 		}
-	    if(result == null) {
-	        result = getColumnNameByRightCondition(sql, column, "\\s+not\\s+in\\s*\\(");
-	    }
 		if(result == null) {
-			result = getColumnNameByRightCondition(sql, column, "\\s+in\\s*\\(");
-		}
-		
-		if(result == null) {
-			result = getColumnNameByRightConditionWithFunction(sql, column, operator);
+			result = getColumnNameByRightCondition(sql, column, "\\s+in\\s+\\(");
 		}
 		return result;
-	}
-	//有函数的表达式提取
-	private static String getColumnNameByRightConditionWithFunction(String sql,String column, String operator) {
-		Pattern p = Pattern.compile("(\\w+)\\s*"+operator+"\\s*\\w+\\([,\\w]*[:#$&]\\{?"+column+"[\\}#$]?[,\\w]*\\)",Pattern.DOTALL|Pattern.CASE_INSENSITIVE);
-		Matcher m = p.matcher(sql);
-		if(m.find()) {
-			return m.group(1);
-		}
-		return null;
 	}
 
 	private static String getColumnNameByRightCondition(String sql,
@@ -187,7 +162,7 @@ public class SqlParseHelper {
 
 	 /**
      * 将sql从占位符转换为命名参数,如 select * from user where id =? ,将返回: select * from user where id = #id#
-     * @param includeSqls
+     * @param sql
      * @param prefix 命名参数的前缀
      * @param suffix 命名参数的后缀
      * @return
@@ -213,10 +188,7 @@ public class SqlParseHelper {
 
         private String replace2NamedParameters(String sql) {
             String replacedSql = replace2NamedParametersByOperator(sql,"[=<>!]{1,2}");
-            replacedSql = replace2NamedParametersByOperator(replacedSql,"\\s+like\\s+"); // like
-//            replacedSql = replace2NamedParametersByOperator(replacedSql,"\\s+not\\s+in\\s+\\("); // not in
-//            replacedSql = replace2NamedParametersByOperator(replacedSql,"\\s+in\\s+\\("); // in
-            return replacedSql;
+            return replace2NamedParametersByOperator(replacedSql,"\\s+like\\s+");
         }
 
         private String replaceInsertSql2NamedParameters(String sql) {
@@ -230,17 +202,17 @@ public class SqlParseHelper {
             Pattern p = Pattern.compile("\\s*insert\\s+into.*\\((.*?)\\).*values.*?\\((.*)\\).*",Pattern.DOTALL|Pattern.CASE_INSENSITIVE);
             Matcher m = p.matcher(sql);
             if(m.find()) {
-                String[] columns = StringHelper.tokenizeToStringArray(m.group(1),", \t\n\r\f");
-                String[] values = StringHelper.tokenizeToStringArray(m.group(2),", \t\n\r\f");
+                String[] columns = StringHelper.tokenizeToStringArray(m.group(1), ", \t\n\r\f");
+                String[] values = StringHelper.tokenizeToStringArray(m.group(2), ", \t\n\r\f");
                 if(columns.length != values.length) {
-                    throw new IllegalArgumentException("insert 语句的插入列与值列数目不相等,sql:"+sql+" columns:"+StringHelper.join(columns,",")+" values:"+StringHelper.join(values,","));
+                    throw new IllegalArgumentException("insert 语句的插入列与值列数目不相等,sql:"+sql+" columns:"+ StringHelper.join(columns, ",")+" values:"+ StringHelper.join(values, ","));
                 }
                 for(int i = 0; i < columns.length; i++) {
                     String column = columns[i];
                     String paranName = StringHelper.uncapitalize(StringHelper.makeAllWordFirstLetterUpperCase(column));
                     values[i] = values[i].replace("?", prefix + paranName + suffix);;
                 }
-                return StringHelper.replace(m.start(2), m.end(2), sql, StringHelper.join(values,","));
+                return StringHelper.replace(m.start(2), m.end(2), sql, StringHelper.join(values, ","));
             }
             throw new IllegalArgumentException("无法解析的sql:"+sql+",不匹配正则表达式:"+p.pattern());
         }
@@ -273,7 +245,7 @@ public class SqlParseHelper {
 				return sql;
 			} else {
 				return StringHelper.replace(StringHelper.replace(sql, "from",
-						"\n\tfrom"), "where", "\n\twhere");
+                        "\n\tfrom"), "where", "\n\twhere");
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -288,26 +260,14 @@ public class SqlParseHelper {
 	 */
 	public static String removeSelect(String sql) {
 		if(StringHelper.isBlank(sql)) throw new IllegalArgumentException("sql must be not empty");
-		int beginPos = StringHelper.indexOfByRegex(sql.toLowerCase(), "\\sfrom\\s");
+		int beginPos = sql.toLowerCase().indexOf("from");
 		if(beginPos == -1) throw new IllegalArgumentException(" sql : " + sql + " must has a keyword 'from'");
 		return sql.substring(beginPos);
 	}
-	
-    public static String toCountSqlForPaging(String sql,String countQueryPrefix) {
-        if(StringHelper.isBlank(sql)) throw new IllegalArgumentException("sql must be not empty");
-        if(StringHelper.indexOfByRegex(sql.toLowerCase(), "\\sgroup\\s+by\\s") >= 0) {
-            return countQueryPrefix +" from (" + sql + " ) forGroupByCountTable";
-        }else {
-			int selectBeginOps = StringHelper.indexOfByRegex(sql.toLowerCase(), "select\\s");
-			int fromBeingOps = StringHelper.indexOfByRegex(sql.toLowerCase(), "\\sfrom\\s");
-			if(fromBeingOps == -1) throw new IllegalArgumentException(" sql : " + sql + " must has a keyword 'from'");
-			return sql.substring(0,selectBeginOps) + countQueryPrefix + sql.substring(fromBeingOps);
-        }
-    }
 
-    public static String getSelect(String sql) {
+	public static String getSelect(String sql) {
 		if(StringHelper.isBlank(sql)) throw new IllegalArgumentException("sql must be not empty");
-		int beginPos = StringHelper.indexOfByRegex(sql.toLowerCase(), "\\sfrom\\s");
+		int beginPos = sql.toLowerCase().indexOf("from");
 		if(beginPos == -1) throw new IllegalArgumentException(" sql : " + sql + " must has a keyword 'from'");
 		return sql.substring(0,beginPos);
 	}
@@ -315,50 +275,35 @@ public class SqlParseHelper {
 	/** 得到sql的from子句 */
 	public static String getFromClauses(String sql) {
 		String lowerSql = sql.toLowerCase();
-		int fromBegin = StringHelper.indexOfByRegex(lowerSql, "\\sfrom\\s");
-		if(fromBegin <= 0) throw new IllegalArgumentException("error from begin:"+fromBegin);
-		
+		int fromBegin = lowerSql.indexOf("from");
 		int fromEnd = lowerSql.indexOf("where");
 		if(fromEnd == -1) {
-			fromEnd = StringHelper.indexOfByRegex(lowerSql,"\\sgroup\\s+by\\s");
+			fromEnd = StringHelper.indexOfByRegex(lowerSql, "group\\s+by");
 		}
 		if(fromEnd == -1) {
-			fromEnd = StringHelper.indexOfByRegex(lowerSql, "\\shaving\\s");
+			fromEnd = lowerSql.indexOf("having");
 		}
 		if(fromEnd == -1) {
-			fromEnd = StringHelper.indexOfByRegex(lowerSql,"\\sorder\\s+by\\s");
+			fromEnd = StringHelper.indexOfByRegex(lowerSql, "order\\s+by");
 		}
 		if(fromEnd == -1) {
-			fromEnd = StringHelper.indexOfByRegex(lowerSql, "\\sunion\\s");;
+			fromEnd = lowerSql.indexOf("union");
 		}
 		if(fromEnd == -1) {
-			//SELECT Date FROM Store_Information
-			//INTERSECT
-			//SELECT Date FROM Internet_Sales
-			fromEnd = StringHelper.indexOfByRegex(lowerSql, "\\sintersect\\s");
+			fromEnd = lowerSql.indexOf("intersect");
 		}
 		if(fromEnd == -1) {
-			//SELECT Date FROM Store_Information
-			//MINUS
-			//SELECT Date FROM Internet_Sales
-			fromEnd = StringHelper.indexOfByRegex(lowerSql, "\\sminus\\s"); 
+			fromEnd = lowerSql.indexOf("minus");
 		}
 		if(fromEnd == -1) {
-			//SELECT Date FROM Store_Information
-			//EXCEPT
-			//SELECT Date FROM Internet_Sales			
-			fromEnd = StringHelper.indexOfByRegex(lowerSql, "\\sexcept\\s");
+			fromEnd = lowerSql.indexOf("except");
 		}
 		if(fromEnd == -1) {
 			fromEnd = sql.length();
 		}
-		return sql.substring(fromBegin+" from ".length(),fromEnd);
+		return sql.substring(fromBegin+"from".length(),fromEnd);
 	}
 
-	public static String removeSqlComments(String sql) {
-		if(sql == null) return null;
-		return sql.replaceAll("(?s)/\\*.*?\\*/", "").replaceAll("--.*", "");
-	}
 	
     /**
      * 去除orderby 子句
@@ -368,23 +313,11 @@ public class SqlParseHelper {
     public static String removeOrders(String sql) {
     	return sql.replaceAll("(?is)order\\s+by[\\w|\\W|\\s|\\S]*", "");
     }
-    
-    public static String replaceWhere(String sql) {
-        return sql.toString().replaceAll("(?i)\\swhere\\s+(and|or)", " WHERE");
-    }
 	
 	public static long startTimes = System.currentTimeMillis();
 	public static void setRandomParamsValueForPreparedStatement(String sql,
 			PreparedStatement ps) throws SQLException {
 		int count = StringHelper.containsCount(sql, "?");
-		if(DatabaseMetaDataUtils.isOracleDataBase(ps.getConnection().getMetaData())) {
-			if(SqlTypeChecker.isSelectSql(sql)) {
-				for (int i = 1; i <= count; i++) {
-					ps.setObject(i, null);
-				}
-				return;
-			}
-		}
 		for (int i = 1; i <= count; i++) {
 			long random = new Random(System.currentTimeMillis()+startTimes++).nextInt() * 30 + System.currentTimeMillis() + startTimes;
 			try {
@@ -430,6 +363,6 @@ public class SqlParseHelper {
 
 	private static void warn(String sql, int i, SQLException error) {
 		GLogger.warn("error on set parametet index:" + i + " cause:" + error
-				+ " sql:" + sql);
+                + " sql:" + sql);
 	}
 }

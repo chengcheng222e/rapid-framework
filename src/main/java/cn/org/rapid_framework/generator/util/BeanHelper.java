@@ -29,26 +29,15 @@ public class BeanHelper {
             Method readMethod = descriptors[i].getReadMethod();
 			if (readMethod != null) {
 				try {
-				    long start = System.currentTimeMillis();
 					map.put(name, readMethod.invoke(obj, new Object[]{}));
-					long cost = start - System.currentTimeMillis();
 				}catch(Exception e){
-					GLogger.warn("error get property value,name:"+name+" on bean:"+obj,e);
+					GLogger.warn("error get property value,name:" + name + " on bean:" + obj, e);
 				}
             }
 		}
 		return map;
 	}
 
-   public static PropertyDescriptor getPropertyDescriptor(Class beanClass,String propertyName) {
-        for(PropertyDescriptor pd : getPropertyDescriptors(beanClass)) {
-            if(pd.getName().equals(propertyName)) {
-                return pd;
-            }
-        }
-        return null;
-   }
-	   
 	public static PropertyDescriptor[] getPropertyDescriptors(Class beanClass) {
 		BeanInfo beanInfo = null;
 		try {
@@ -119,33 +108,13 @@ public class BeanHelper {
         return value;
     }
 
-    public static void setProperty(Object target, String propertyName, Object value)  {
-        PropertyDescriptor pd = getPropertyDescriptor(target.getClass(),propertyName);
-        if(pd == null) throw new IllegalArgumentException("not found property:"+propertyName+" on class:"+target.getClass());
-        setProperty(target, pd, value);
-    }
-    
-    public static <T> T newInstance(Class<T> clazz) {
-        try {
-            return clazz.newInstance();
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    
-    private static void setProperty(Object target, PropertyDescriptor targetPd, Object value)  {
+    private static void setProperty(Object target, PropertyDescriptor targetPd, Object value) throws IllegalAccessException,InvocationTargetException {
         Method writeMethod = targetPd.getWriteMethod();
         if (!Modifier.isPublic(writeMethod.getDeclaringClass()
             .getModifiers())) {
             writeMethod.setAccessible(true);
         }
-        try {
-            writeMethod.invoke(target, new Object[] { convert(value,writeMethod.getParameterTypes()[0]) });
-        }catch(Exception e) {
-            throw new RuntimeException("error set property:"+targetPd.getName()+" on class:"+target.getClass(),e);
-        }
+        writeMethod.invoke(target, new Object[] { convert(value,writeMethod.getParameterTypes()[0]) });
     }
 
     private static Object convert(Object value, Class<?> targetType) {
@@ -191,8 +160,8 @@ public class BeanHelper {
         if(targetType == char.class) {
             return value.charAt(0);
         }
-        if(DateHelper.isDateType(targetType)) {
-            return DateHelper.parseDate(value,targetType,"yyyyMMdd","yyyy-MM-dd","yyyyMMddHHmmSS","yyyy-MM-dd HH:mm:ss","HH:mm:ss");
+        if(cn.org.rapid_framework.generator.util.DateHelper.isDateType(targetType)) {
+            return DateHelper.parseDate(value, targetType, "yyyyMMdd", "yyyy-MM-dd", "yyyyMMddHHmmSS", "yyyy-MM-dd HH:mm:ss", "HH:mm:ss");
         }
 
         throw new IllegalArgumentException("cannot convert value:"+value +" to targetType:"+targetType);

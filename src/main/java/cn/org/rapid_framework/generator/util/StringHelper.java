@@ -1,15 +1,10 @@
 package cn.org.rapid_framework.generator.util;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.StringTokenizer;
+import cn.org.rapid_framework.generator.provider.db.table.model.Column.EnumMetaDada;
+
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import cn.org.rapid_framework.generator.provider.db.table.model.Column.EnumMetaDada;
 
 /**
  * 
@@ -20,7 +15,7 @@ public class StringHelper {
 	
 	public static String removeCrlf(String str) {
 		if(str == null) return null;
-		return StringHelper.join(StringHelper.tokenizeToStringArray(str,"\t\n\r\f")," ");
+		return cn.org.rapid_framework.generator.util.StringHelper.join(cn.org.rapid_framework.generator.util.StringHelper.tokenizeToStringArray(str, "\t\n\r\f"), " ");
 	}
 	
 	private static final Map<String,String> XML = new HashMap<String,String>();
@@ -36,53 +31,11 @@ public class StringHelper {
 		if(str == null) return null;
 		for(String key : XML.keySet()) {
 			String value = XML.get(key);
-			str = StringHelper.replace(str, "&"+key+";", value);
+			str = cn.org.rapid_framework.generator.util.StringHelper.replace(str, "&" + key + ";", value);
 		}
 		return str;
 	}
-
-	public static String escapeXml(String str) {
-		if(str == null) return null;
-		StringBuffer sb = new StringBuffer();
-		for (int i = 0; i < str.length(); i++) {
-			char c = str.charAt(i);
-			String escapedStr = getEscapedStringByChar(c);
-			if(escapedStr == null)
-				sb.append(c);
-			else
-				sb.append(escapedStr);
-		}
-		return sb.toString();
-	}
-
-   public static String escapeXml(String str,String escapeChars) {
-        if(str == null) return null;
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < str.length(); i++) {
-            char c = str.charAt(i);
-            if(escapeChars.indexOf(c) < 0) {
-                sb.append(c);
-                continue;
-            }
-            String escapedStr = getEscapedStringByChar(c);
-            if(escapedStr == null)
-                sb.append(c);
-            else
-                sb.append(escapedStr);
-        }
-        return sb.toString();
-    }
-	   
-	private static String getEscapedStringByChar(char c) {
-		String escapedStr = null;
-		for (String key : XML.keySet()) {
-			String value = XML.get(key);
-			if (c == value.charAt(0)) {
-				escapedStr = "&" + key + ";";
-			}
-		}
-		return escapedStr;
-	}
+		 
 
 	public static String removePrefix(String str,String prefix) {
 		return removePrefix(str,prefix,false);
@@ -111,14 +64,6 @@ public class StringHelper {
         return !isBlank(str);
     }
     
-    public static boolean isEmpty(String str) {
-        return str == null || str.length() == 0;
-    }
-
-    public static boolean isNotEmpty(String str) {
-        return !isEmpty(str);
-    }
-    
     public static String getExtension(String str) {
     	if(str == null) return null;
     	int i = str.lastIndexOf('.');
@@ -128,26 +73,6 @@ public class StringHelper {
     	return null;
     }
 
-    public static String insertBefore(String content,String compareToken,String insertString) {
-        if(content.indexOf(insertString) >= 0) return content;
-        int index = content.indexOf(compareToken);
-        if(index >= 0) {
-            return new StringBuffer(content).insert(index,insertString).toString();
-        }else {
-            throw new IllegalArgumentException("not found insert location by compareToken:"+compareToken+" content:"+content);
-        }
-    }
-    
-    public static String insertAfter(String content,String compareToken,String insertString) {
-        if(content.indexOf(insertString) >= 0) return content;
-        int index = content.indexOf(compareToken);
-        if(index >= 0) {
-            return new StringBuffer(content).insert(index+compareToken.length(),insertString).toString();
-        }else {
-            throw new IllegalArgumentException("not found insert location by compareToken:"+compareToken+" content:"+content);
-        }
-    }
-    
 	/**
 	 * Count the occurrences of the substring in string s.
 	 * @param str string to search in. Return 0 if this is null.
@@ -222,15 +147,7 @@ public class StringHelper {
 	}
 
 	public static String toJavaClassName(String str) {
-		return makeAllWordFirstLetterUpperCase(StringHelper.toUnderscoreName(str));
-	}
-	
-	public static String getJavaClassSimpleName(String clazz) {
-		if(clazz == null) return null;
-		if(clazz.lastIndexOf(".") >= 0) {
-			return clazz.substring(clazz.lastIndexOf(".")+1);
-		}
-		return clazz;
+		return makeAllWordFirstLetterUpperCase(cn.org.rapid_framework.generator.util.StringHelper.toUnderscoreName(str));
 	}
 
 	public static String removeMany(String inString, String... keywords) {
@@ -241,11 +158,6 @@ public class StringHelper {
 			inString = replace(inString, k, "");
 		}
 		return inString;
-	}
-	
-	public static void appendReplacement(Matcher m,StringBuffer sb, String replacement) {
-		replacement = StringHelper.replace(replacement, "$", "\\$");
-		m.appendReplacement(sb, replacement);
 	}
 	
 	public static String replace(String inString, String oldPattern, String newPattern) {
@@ -519,34 +431,5 @@ public class StringHelper {
 			i = indexOf;
 		}
 		return count;
-	}
-
-	public static String getByRegex(String str,String regex) {
-		return getByRegex(str, regex, 0);
-	}
-	
-	public static String getByRegex(String str,String regex,int group) {
-		if(regex == null) throw new NullPointerException();
-		if(group < 0) throw new IllegalArgumentException();
-		if(str == null) return null;
-		Pattern p = Pattern.compile(regex);
-		Matcher m = p.matcher(str);
-		if(m.find()) {
-			return m.group(group);
-		}
-		return null;
-	}
-	
-	public static String removeIbatisOrderBy(String sql) {
-//	    Pattern p = Pattern.compile("<is\\w+\\s+[\\w\\s='\"]+>\\s*order\\s+by.*?</\\w+>");
-	    //<is\w+\s+[\w\s='"]+>\s*order\s+by.*?</\w+>
-	    String orderByRemovedSql = sql.replaceAll("(?si)<\\w+[^>]*?>\\s*order\\s+by\\s+[^<]+?</\\w+>", "")
-	            .replaceAll("(?i)<\\w+[\\w\\s='\"]+prepend[\\w\\s='\"]*?order\\s+by\\s*['\"][^>]*?>[^<]+</\\w+>", "")
-	            .replaceAll("(?i)\\s*order\\s+by\\s+.*", "");
-	    return removeXmlTagIfBodyEmpty(removeXmlTagIfBodyEmpty(removeXmlTagIfBodyEmpty(removeXmlTagIfBodyEmpty(orderByRemovedSql))));
-	}
-	
-	public static String removeXmlTagIfBodyEmpty(String sql) {
-		return sql.replaceAll("<\\w+[^>]*?>\\s+</\\w+>", "");
 	}
 }

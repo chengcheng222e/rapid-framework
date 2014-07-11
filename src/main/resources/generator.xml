@@ -1,90 +1,97 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="GBK"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-	<comment>
-		ä»£ç ç”Ÿæˆå™¨é…ç½®æ–‡ä»¶: 
-		1.ä¼šä¸ºæ‰€æœ‰çš„propertyç”Ÿæˆproperty_dirå±æ€§,å¦‚pkg=com.company => pkg_dir=com/company
-		2.å¯ä»¥å¼•ç”¨ç¯å¢ƒå˜é‡: ${env.JAVA_HOME} or System.properties: ${user.home},propertyä¹‹é—´ä¹Ÿå¯ä»¥ç›¸äº’å¼•ç”¨
-	</comment>
-	
-	<entry key="basepackage">com.vernon.oss</entry>
-	
-	<!-- jsp namespace: web/${namespace}/${className}/list.jsp -->
-	<entry key="namespace">pages</entry>
+    <comment>
+        ´úÂëÉú³ÉÆ÷ÅäÖÃÎÄ¼ş:
+        1.»áÎªËùÓĞµÄpropertyÉú³Éproperty_dirÊôĞÔ,Èçpkg=com.company => pkg_dir=com/company
+        2.¿ÉÒÔÒıÓÃ»·¾³±äÁ¿: ${env.JAVA_HOME} or System.properties: ${user.home},propertyÖ®¼äÒ²¿ÉÒÔÏà»¥ÒıÓÃ
+    </comment>
 
-	<entry key="outRoot">/Users/chenyuan/Workspaces/Github/rapid-framework/generator-output</entry>
-	
-	<!-- éœ€è¦ç§»é™¤çš„è¡¨åå‰ç¼€,ä½¿ç”¨é€—å·è¿›è¡Œåˆ†éš”å¤šä¸ªå‰ç¼€,ç¤ºä¾‹å€¼: t_,v_ -->
-	<entry key="tableRemovePrefixes"></entry>
-	
-	<entry key="jdbc.username">root</entry>
-	<entry key="jdbc.password">root</entry>
-		
-	<!-- oracleéœ€è¦æŒ‡å®šjdbc.schema,å¹¶ä¸”å¯èƒ½è¦å¤§å†™ï¼Œå…¶å®ƒæ•°æ®åº“å¿½ç•¥æ­¤é¡¹é…ç½®  -->
-	<entry key="jdbc.schema"></entry>
-	<entry key="jdbc.catalog"></entry>
-	
-	<!-- æ•°æ®åº“ç±»å‹è‡³javaç±»å‹æ˜ å°„  -->
-	<entry key="java_typemapping.java.sql.Timestamp">java.util.Date</entry>
-	<entry key="java_typemapping.java.sql.Date">java.util.Date</entry>
-	<entry key="java_typemapping.java.sql.Time">java.util.Date</entry>	
-	<entry key="java_typemapping.java.lang.Byte">Integer</entry>
-	<entry key="java_typemapping.java.lang.Short">Integer</entry>
-	<entry key="java_typemapping.java.math.BigDecimal">Long</entry>
-	<entry key="java_typemapping.java.sql.Clob">String</entry>
-	
-	<!-- Mysql -->
-	<entry key="jdbc.url">jdbc:mysql://localhost:3306/oss?useUnicode=true&amp;characterEncoding=UTF-8</entry>
-	<entry key="jdbc.driver">com.mysql.jdbc.Driver</entry>
+    <!--<entry key="basepackage">com.dianziq.dianping</entry>-->
 
-	<!-- Oracle		jdbc:oracle:oci:@tnsname_devdb
-	<entry key="jdbc.url">jdbc:oracle:thin:@192.168.0.177:1521:[sid]</entry>
-	<entry key="jdbc.driver">oracle.jdbc.driver.OracleDriver</entry>
-	-->
-	
-	<!-- SQLServer2000 
-	<entry key="jdbc.url">jdbc:microsoft:sqlserver://localhost:1433;DatabaseName=[database]</entry>
-	<entry key="jdbc.driver">com.microsoft.jdbc.sqlserver.SQLServerDriver</entry>
-	-->
-	
-	<!-- SQLServer2005 
-	<entry key="jdbc.url">jdbc:sqlserver://192.168.0.98:1433;DatabaseName=[database]</entry>
-	<entry key="jdbc.driver">com.microsoft.sqlserver.jdbc.SQLServerDriver</entry>
-	-->
+    <entry key="basepackage">ÄãµÄ°üÃû</entry>
 
-	<!-- JTDs for SQLServer 
-	<entry key="jdbc.url">jdbc:jtds:sqlserver://192.168.0.102:1433/[database];tds=8.0;lastupdatecount=true</entry>
-	<entry key="jdbc.driver">net.sourceforge.jtds.jdbc.Driver</entry>
-	-->
+    <!-- jsp namespace: web/${namespace}/${className}/list.jsp -->
+    <entry key="namespace">pages</entry>
 
-	<!-- PostgreSql
-	<entry key="jdbc.url">jdbc:postgresql://localhost/[database]</entry>
-	<entry key="jdbc.driver">org.postgresql.Driver</entry>
-	 -->
-	
-	<!-- Sybase
-	<entry key="jdbc.url">jdbc:sybase:Tds:localhost:5007/[database]</entry>
-	<entry key="jdbc.driver">com.sybase.jdbc.SybDriver</entry>
-	 -->
-	
-	<!-- DB2 
-	<entry key="jdbc.url">jdbc:db2://localhost:5000/[database]</entry>
-	<entry key="jdbc.driver">com.ibm.db2.jdbc.app.DB2Driver</entry>
-	-->
-	
-	<!-- HsqlDB 
-	<entry key="jdbc.url">jdbc:hsqldb:mem:generatorDB</entry>
-	<entry key="jdbc.driver">org.hsqldb.jdbcDriver</entry>
-	-->
-	
-	<!-- Derby 
-	<entry key="jdbc.url">jdbc:derby://localhost/databaseName</entry>
-	<entry key="jdbc.driver">org.apache.derby.jdbc.ClientDriver</entry>	
-	-->
+    <entry key="outRoot">generator-output</entry>
 
-	<!-- H2 
-	<entry key="jdbc.url">jdbc:h2:tcp://localhost/~/test</entry>
-	<entry key="jdbc.driver">org.h2.Driver</entry>
-	-->
+    <!-- ĞèÒªÒÆ³ıµÄ±íÃûÇ°×º,Ê¹ÓÃ¶ººÅ½øĞĞ·Ö¸ô¶à¸öÇ°×º,Ê¾ÀıÖµ: t_,v_ -->
+    <entry key="tableRemovePrefixes"></entry>
+
+    <entry key="jdbc.username">ÓÃ»§Ãû</entry>
+    <entry key="jdbc.password">ÃÜÂë</entry>
+
+    <!-- oracleĞèÒªÖ¸¶¨jdbc.schema,ÆäËüÊı¾İ¿âºöÂÔ´ËÏîÅäÖÃ  -->
+    <entry key="jdbc.schema"></entry>
+    <entry key="jdbc.catalog"></entry>
+
+    <!-- Êı¾İ¿âÀàĞÍÓ³Éä  -->
+    <entry key="java_typemapping.java.sql.Timestamp">java.util.Date</entry>
+    <entry key="java_typemapping.java.sql.Date">java.util.Date</entry>
+    <entry key="java_typemapping.java.sql.Time">java.util.Date</entry>
+    <entry key="java_typemapping.java.lang.Byte">Integer</entry>
+    <entry key="java_typemapping.java.lang.Short">Integer</entry>
+    <entry key="java_typemapping.java.math.BigDecimal">Long</entry>
+
+    <!-- Mysql -->
+    <entry key="jdbc.url">jdbc:mysql://localhost:3306/sms?useUnicode=true&amp;characterEncoding=UTF-8</entry>
+    <entry key="jdbc.driver">com.mysql.jdbc.Driver</entry>
+
+
+    <!-- H2
+    <entry key="jdbc.url">jdbc:h2:tcp://localhost/test</entry>
+    <entry key="jdbc.driver">org.h2.Driver</entry>
+     -->
+
+    <!-- Mysql
+    <entry key="jdbc.url">jdbc:mysql://localhost:3306/test?useUnicode=true&amp;characterEncoding=UTF-8</entry>
+    <entry key="jdbc.driver">com.mysql.jdbc.Driver</entry>
+    -->
+
+    <!-- Oracle 	jdbc:oracle:oci:@tnsname_devdb
+    <entry key="jdbc.url">jdbc:oracle:thin:@192.168.0.177:1521:[sid]</entry>
+    <entry key="jdbc.driver">oracle.jdbc.driver.OracleDriver</entry>
+    -->
+
+    <!-- SQLServer2000
+    <entry key="jdbc.url">jdbc:microsoft:sqlserver://localhost:1433;DatabaseName=[database]</entry>
+    <entry key="jdbc.driver">com.microsoft.jdbc.sqlserver.SQLServerDriver</entry>
+    -->
+
+    <!-- SQLServer2005
+    <entry key="jdbc.url">jdbc:sqlserver://192.168.0.98:1433;DatabaseName=[database]</entry>
+    <entry key="jdbc.driver">com.microsoft.sqlserver.jdbc.SQLServerDriver</entry>
+    -->
+
+    <!-- JTDs for SQLServer
+    <entry key="jdbc.url">jdbc:jtds:sqlserver://192.168.0.102:1433/[database];tds=8.0;lastupdatecount=true</entry>
+    <entry key="jdbc.driver">net.sourceforge.jtds.jdbc.Driver</entry>
+    -->
+
+    <!-- PostgreSql
+    <entry key="jdbc.url">jdbc:postgresql://localhost/[database]</entry>
+    <entry key="jdbc.driver">org.postgresql.Driver</entry>
+     -->
+
+    <!-- Sybase
+    <entry key="jdbc.url">jdbc:sybase:Tds:localhost:5007/[database]</entry>
+    <entry key="jdbc.driver">com.sybase.jdbc.SybDriver</entry>
+     -->
+
+    <!-- DB2
+    <entry key="jdbc.url">jdbc:db2://localhost:5000/[database]</entry>
+    <entry key="jdbc.driver">com.ibm.db2.jdbc.app.DB2Driver</entry>
+    -->
+
+    <!-- HsqlDB
+    <entry key="jdbc.url">jdbc:hsqldb:mem:generatorDB</entry>
+    <entry key="jdbc.driver">org.hsqldb.jdbcDriver</entry>
+    -->
+
+    <!-- Derby
+    <entry key="jdbc.url">jdbc:derby://localhost/databaseName</entry>
+    <entry key="jdbc.driver">org.apache.derby.jdbc.ClientDriver</entry>
+    -->
 
 </properties>

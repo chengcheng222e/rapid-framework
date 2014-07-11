@@ -89,7 +89,7 @@ public class ActionScriptDataTypesUtils {
 	}
 
 	public static void main(String[] args) {
-		String bb = ActionScriptDataTypesUtils.getPreferredAsType(List.class.getName());
+		String bb = cn.org.rapid_framework.generator.util.typemapping.ActionScriptDataTypesUtils.getPreferredAsType(List.class.getName());
 		System.out.println(bb);
 	}
 

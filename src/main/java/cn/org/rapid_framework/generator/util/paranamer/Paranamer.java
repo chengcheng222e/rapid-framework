@@ -31,8 +31,6 @@
 package cn.org.rapid_framework.generator.util.paranamer;
 
 import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 
 /**
  * Paranamer allows lookups of methods and constructors by parameter names.
@@ -51,7 +49,7 @@ public interface Paranamer {
 	 *            the {@link java.lang.reflect.Method} or {@link java.lang.reflect.Constructor} for which the parameter names
 	 *            are looked up.
 	 * @return A list of the parameter names.
-	 * @throws ParameterNamesNotFoundException
+	 * @throws cn.org.rapid_framework.generator.util.paranamer.ParameterNamesNotFoundException
 	 *             if no parameter names were found.
 	 * @throws NullPointerException
 	 *             if the parameter is null.
@@ -69,7 +67,7 @@ public interface Paranamer {
 	 *            are looked up.
 	 * @param throwExceptionIfMissing whether to throw an exception if no Paranamer data found (versus return null).
      * @return A list of the parameter names.
-	 * @throws ParameterNamesNotFoundException
+	 * @throws cn.org.rapid_framework.generator.util.paranamer.ParameterNamesNotFoundException
 	 *             if no parameter names were found.
 	 * @throws NullPointerException
 	 *             if the parameter is null.

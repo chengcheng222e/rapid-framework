@@ -34,15 +34,7 @@
  */
 package cn.org.rapid_framework.generator.util.paranamer;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -50,21 +42,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.Inflater;
-import java.util.zip.InflaterInputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import java.util.zip.*;
 
 /**
- * Implementation of {@link Paranamer} which can access Javadocs at runtime to extract
+ * Implementation of {@link cn.org.rapid_framework.generator.util.paranamer.Paranamer} which can access Javadocs at runtime to extract
  * parameter names of methods. Works with:-
  * <ul>
  * <li>Javadoc in zip file</li>
@@ -79,7 +63,7 @@ import java.util.zip.ZipFile;
  * <p>
  * Note that this does not perform any caching of entries (except what it finds in the
  * package-list file, which is very lightweight)... every lookup will involve a disc hit.
- * If you want to speed up performance, use a {@link CachingParanamer}.
+ * If you want to speed up performance, use a {@link cn.org.rapid_framework.generator.util.paranamer.CachingParanamer}.
  * <p>
  * Implementation note: the constructors of this implementation let the client know if I/O
  * problems will stop the recovery of parameter names. It might be preferable to suppress
@@ -104,8 +88,8 @@ public class JavadocParanamer implements Paranamer {
 	private static final String IE =
 			"Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 2.0.50727)";
 
-	private static final ParameterNamesNotFoundException CLASS_NOT_SUPPORTED =
-			new ParameterNamesNotFoundException("class not supported");
+	private static final cn.org.rapid_framework.generator.util.paranamer.ParameterNamesNotFoundException CLASS_NOT_SUPPORTED =
+			new cn.org.rapid_framework.generator.util.paranamer.ParameterNamesNotFoundException("class not supported");
 
 	/** In the case of an archive, this stores the path up to the base of the Javadocs */
 	private String base = null;
@@ -124,9 +108,9 @@ public class JavadocParanamer implements Paranamer {
 	private final Set<String> packages = new HashSet<String>();
 
 	/**
-	 * Construct a Javadoc reading implementation of {@link Paranamer} using a local
+	 * Construct a Javadoc reading implementation of {@link cn.org.rapid_framework.generator.util.paranamer.Paranamer} using a local
 	 * directory or zip archive as a source.
-	 * 
+	 *
 	 * @param archiveOrDirectory
 	 *            either a zip archive of Javadocs or the base directory of Javadocs.
 	 * @throws java.io.IOException
@@ -292,7 +276,7 @@ public class JavadocParanamer implements Paranamer {
 			String[] names = getParameterNames(klass, name, types);
 			if (names == null) {
                 if (throwExceptionIfMissing) {
-                    throw new ParameterNamesNotFoundException(
+                    throw new cn.org.rapid_framework.generator.util.paranamer.ParameterNamesNotFoundException(
 					    methodOrConstructor.toString());
                 } else {
                     return Paranamer.EMPTY_NAMES;

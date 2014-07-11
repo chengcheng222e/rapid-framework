@@ -1,10 +1,10 @@
 package cn.org.rapid_framework.generator.provider.java.model;
 
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Method;
-
 import cn.org.rapid_framework.generator.util.typemapping.ActionScriptDataTypesUtils;
 import cn.org.rapid_framework.generator.util.typemapping.JavaPrimitiveTypeMapping;
+
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
 
 public class JavaProperty {
 	PropertyDescriptor propertyDescriptor;
@@ -41,15 +41,7 @@ public class JavaProperty {
 	public JavaMethod getWriteMethod() {
 		return new JavaMethod(propertyDescriptor.getWriteMethod(),clazz);
 	}
-	
-	public boolean isHasReadMethod() {
-	    return propertyDescriptor.getReadMethod() != null;
-	}
 
-	public boolean isHasWriteMethod() {
-        return propertyDescriptor.getWriteMethod() != null;
-    }
-	
 	public String getAsType() {
 		return ActionScriptDataTypesUtils.getPreferredAsType(propertyDescriptor.getPropertyType().getName());
 	}

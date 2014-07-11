@@ -1,6 +1,7 @@
 package cn.org.rapid_framework.generator.util.typemapping;
 
 import java.sql.Types;
+
 /**
  * 用于ibatis的JdbcType
  * @author badqiu
@@ -44,7 +45,7 @@ public enum JdbcType {
   }
   
   public static String getJdbcSqlTypeName(int code) {
-	  for(JdbcType type : values()) {
+	  for(cn.org.rapid_framework.generator.util.typemapping.JdbcType type : values()) {
 		  if(type.TYPE_CODE == code) {
 			  return type.name();
 		  }

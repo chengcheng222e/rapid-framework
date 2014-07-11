@@ -1,9 +1,9 @@
 package cn.org.rapid_framework.generator.provider.java.model;
 
+import cn.org.rapid_framework.generator.util.typemapping.ActionScriptDataTypesUtils;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-
-import cn.org.rapid_framework.generator.util.typemapping.ActionScriptDataTypesUtils;
 
 public class JavaField {
 	private Field field;
@@ -19,19 +19,7 @@ public class JavaField {
 		return field.getName();
 	}
 
-	public boolean isAccessible() {
-        return field.isAccessible();
-    }
-
-    public boolean isEnumConstant() {
-        return field.isEnumConstant();
-    }
-
-    public String toGenericString() {
-        return field.toGenericString();
-    }
-
-    public JavaClass getClazz() {
+	public JavaClass getClazz() {
 		return clazz;
 	}
 
@@ -68,7 +56,7 @@ public class JavaField {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        JavaField other = (JavaField) obj;
+        cn.org.rapid_framework.generator.provider.java.model.JavaField other = (cn.org.rapid_framework.generator.provider.java.model.JavaField) obj;
         if (field == null) {
             if (other.field != null)
                 return false;

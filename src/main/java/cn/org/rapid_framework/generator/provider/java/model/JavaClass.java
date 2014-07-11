@@ -1,5 +1,9 @@
 package cn.org.rapid_framework.generator.provider.java.model;
 
+import cn.org.rapid_framework.generator.util.StringHelper;
+import cn.org.rapid_framework.generator.util.typemapping.ActionScriptDataTypesUtils;
+import cn.org.rapid_framework.generator.util.typemapping.JavaPrimitiveTypeMapping;
+
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
@@ -12,11 +16,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import cn.org.rapid_framework.generator.util.StringHelper;
-import cn.org.rapid_framework.generator.util.typemapping.ActionScriptDataTypesUtils;
-import cn.org.rapid_framework.generator.util.typemapping.JavaImport;
-import cn.org.rapid_framework.generator.util.typemapping.JavaPrimitiveTypeMapping;
-
 public class JavaClass {
 	private Class clazz;
 	public JavaClass(Class clazz) {
@@ -24,7 +23,7 @@ public class JavaClass {
 	}
 	
 	public String getClassName() {
-		return getSimpleJavaType();
+		return this.clazz.getSimpleName();
 	}
 	
 	public String getPackageName() {
@@ -40,10 +39,8 @@ public class JavaClass {
 	}
 	
 	public boolean isHasDefaultConstructor() {
-	    if(clazz.isInterface() || clazz.isAnnotation() || clazz.isEnum() || Modifier.isAbstract(clazz.getModifiers()))
-	        return false;
 	    for(Constructor c : clazz.getConstructors()) {
-	        if(Modifier.isPublic(c.getModifiers())) {
+	        if(c.isAccessible() && Modifier.isPublic(c.getModifiers())) {
 	            if(c.getParameterTypes().length == 0) {
 	                return true;
 	            }
@@ -52,46 +49,36 @@ public class JavaClass {
 	    return false;
 	}
 	
-	
-	public Set<JavaClass> getImportClasses() {
-	    Set<JavaClass> set = new LinkedHashSet<JavaClass>();
+	public Set<cn.org.rapid_framework.generator.provider.java.model.JavaClass> getImportClasses() {
+	    Set<cn.org.rapid_framework.generator.provider.java.model.JavaClass> set = new LinkedHashSet<cn.org.rapid_framework.generator.provider.java.model.JavaClass>();
 	    for(Method m :clazz.getMethods()) {
-	        Class[] clazzes = { m.getReturnType() };
-            JavaImport.addImportClass(set,clazzes);
-	        JavaImport.addImportClass(set,m.getParameterTypes());
-	        JavaImport.addImportClass(set,m.getExceptionTypes());
-	    }
-	    if(clazz.isMemberClass()) {
-	        Class[] clazzes = { clazz };
-            JavaImport.addImportClass(set,clazzes);
+	        addImportClass(set, m.getReturnType());
+	        for(Class<?> paramType : m.getParameterTypes()) {
+	            addImportClass(set, paramType);
+	        }
 	    }
 	    for(Field f :clazz.getFields()) {
-            Class[] clazzes = { f.getType() };
-            JavaImport.addImportClass(set,clazzes);
+            addImportClass(set, f.getType());
         }
-	    for(Constructor c : clazz.getConstructors()) {
-	    	JavaImport.addImportClass(set,c.getExceptionTypes());
-	    	JavaImport.addImportClass(set,c.getParameterTypes());
-	    }
 	    return set;
 	}
 
-   public Set<JavaClass> getPropertiesImportClasses() throws Exception {
-       Set<JavaClass> set = getImportClasses();
-       for(JavaProperty prop : getProperties()) {
-           set.addAll(prop.getPropertyType().getImportClasses());
-       }
-       return set;
-   }
+    private boolean addImportClass(Set<cn.org.rapid_framework.generator.provider.java.model.JavaClass> set, Class<?> clazz) {
+        if(clazz == null) return false;
+        if(clazz.getName().startsWith("java.lang.")) return false;
+        if(clazz.isPrimitive()) return false;
+        if("void".equals(clazz.getName())) return false;
+        return set.add(new cn.org.rapid_framework.generator.provider.java.model.JavaClass(clazz));
+    }
 	
-    public String getSuperclassName() {
+	public String getSuperclassName() {
 		return clazz.getSuperclass() != null ? clazz.getSuperclass().getName() : null;
 	}
 	
 	public JavaMethod[] getMethods() {
 		return toJavaMethods(clazz.getDeclaredMethods());
 	}
-	
+
 	public JavaMethod[] getPublicMethods() {
 		Method[] methods = clazz.getDeclaredMethods();
 		return toJavaMethods(filterByModifiers(methods,Modifier.PUBLIC));
@@ -101,7 +88,6 @@ public class JavaClass {
 		Method[] methods = clazz.getDeclaredMethods();
 		return toJavaMethods(filterByModifiers(methods,Modifier.PUBLIC,Modifier.STATIC));
 	}
-	
 
 	public JavaMethod[] getPublicNotStaticMethods() {
 		Method[] staticMethods = filterByModifiers(clazz.getDeclaredMethods(),Modifier.STATIC);
@@ -110,38 +96,16 @@ public class JavaClass {
 		return toJavaMethods(filtered);
 	}
 
-	public JavaProperty[] getReadProperties() throws Exception {
-		List result = new ArrayList();
-		for(JavaProperty p : getProperties()) {
-			if(p.isHasReadMethod()) {
-				result.add(p);
-			}
-		}
-		return (JavaProperty[])result.toArray(new JavaProperty[0]);
-	}
-
-	public JavaProperty[] getWriteProperties() throws Exception {
-		List result = new ArrayList();
-		for(JavaProperty p : getProperties()) {
-			if(p.isHasWriteMethod()) {
-				result.add(p);
-			}
-		}
-		return (JavaProperty[])result.toArray(new JavaProperty[0]);
-	}
-	
-	public JavaProperty[] getProperties() throws Exception {
-		List<JavaProperty> result = new ArrayList<JavaProperty>();
+	public cn.org.rapid_framework.generator.provider.java.model.JavaProperty[] getProperties() throws Exception {
+		List<cn.org.rapid_framework.generator.provider.java.model.JavaProperty> result = new ArrayList<cn.org.rapid_framework.generator.provider.java.model.JavaProperty>();
 		BeanInfo beanInfo = Introspector.getBeanInfo(clazz);
 		PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors();
 		for(PropertyDescriptor pd : pds) {
-		    if(!"class".equalsIgnoreCase(pd.getName())) {
-		        result.add(new JavaProperty(pd,this));
-		    }
+			result.add(new cn.org.rapid_framework.generator.provider.java.model.JavaProperty(pd,this));
 		}
-		return (JavaProperty[])result.toArray(new JavaProperty[0]);
+		return (cn.org.rapid_framework.generator.provider.java.model.JavaProperty[])result.toArray(new JavaProperty[0]);
 	}
-	
+
 	public List<JavaField> getFields() {
 		Field[] fields = clazz.getDeclaredFields();
 		List result = new ArrayList();
@@ -150,11 +114,11 @@ public class JavaClass {
 		}
 		return result;
 	}
-	
+
 	public String getPackagePath(){
 		return getPackageName().replace(".", "/");
 	}
-	
+
 	public String getParentPackageName() {
 		return getPackageName().substring(0,getPackageName().lastIndexOf("."));
 	}
@@ -162,32 +126,15 @@ public class JavaClass {
 	public String getParentPackagePath() {
 		return getParentPackageName().replace(".", "/");
 	}
-	
+
 	public String getClassFile() {
 	    return clazz.getClassLoader().getResource(clazz.getName().replace('.', '/')+".class").getFile();
 	}
 
 	public String getJavaSourceFile() {
-        return clazz.getName().replace('.', '/')+".java";
+	        return clazz.getName().replace('.', '/')+".java";
 	}
 
-	public String getMavenJavaTestSourceFile() {
-	    clazz.getResource("");
-	    String f = getClassFile();
-	    return getMavenJavaTestSourceFile(f);
-    }
-
-    public static String getMavenJavaTestSourceFile(String clazzFile) {
-        if(clazzFile == null) return null;
-        clazzFile = clazzFile.replace('\\', '/');
-        if(clazzFile.indexOf("target/classes") >= 0) {
-            String result = StringHelper.replace(clazzFile, "target/classes", "src/test/java");
-    	    return StringHelper.replace(result, ".class", "Test.java");
-        }else {
-            return null;
-        }
-    }
-    
 	/**
 	 * 得到class是在那个classpath路径装载
 	 * @return
@@ -195,36 +142,23 @@ public class JavaClass {
     public String getLoadedClasspath() {
         return getClassFile().substring(0,getClassFile().length() - (clazz.getName()+".class").length());
     }
-	
+
 	public String getAsType() {
-		return ActionScriptDataTypesUtils.getPreferredAsType(getJavaType());
+		return ActionScriptDataTypesUtils.getPreferredAsType(clazz.getName());
 	}
-	
+
 	public String getJavaType() {
 	    if(isArray()) {
-	        return clazz.getComponentType().getName().replace("$", ".");
+	        return clazz.getComponentType().getName();
 	    }else {
-	        return clazz.getName().replace("$", ".");
+	        return clazz.getName();
 	    }
 	}
-	
 
 	public String getPrimitiveJavaType() {
 	    return JavaPrimitiveTypeMapping.getPrimitiveType(getJavaType());
 	}
-	
-	public String getSimpleJavaType() {
-	    if(isArray()) {
-            return clazz.getComponentType().getSimpleName();
-        }else {
-            return clazz.getSimpleName();
-        }
-	}
-	
-	public String getNullValue () {
-	    return JavaPrimitiveTypeMapping.getDefaultValue(getJavaType());
-	}
-	
+
 	public String getCanonicalName() {
 		return clazz.getCanonicalName();
 	}
@@ -233,8 +167,8 @@ public class JavaClass {
 		return new JavaField(clazz.getField(name),this);
 	}
 
-	public JavaClass getSuperclass() {
-		return new JavaClass(clazz.getSuperclass());
+	public cn.org.rapid_framework.generator.provider.java.model.JavaClass getSuperclass() {
+		return new cn.org.rapid_framework.generator.provider.java.model.JavaClass(clazz.getSuperclass());
 	}
 
 	public boolean isAnnotation() {
@@ -247,10 +181,6 @@ public class JavaClass {
 
 	public boolean isArray() {
 		return clazz.isArray();
-	}
-	
-	public boolean isBooleanType() {
-	    return "boolean".equals(clazz.getName()) || "Boolean".equals(clazz.getSimpleName());
 	}
 
 	public boolean isEnum() {
@@ -284,7 +214,7 @@ public class JavaClass {
 	public Class getClazz() {
 	    return clazz;
 	}
-	
+
 	private Method[] filterByModifiers(Method[] methods,int... filteredModifiers) {
 		List<Method> filtered = new ArrayList<Method>();
 		for(int i = 0; i < methods.length; i++) {
@@ -296,7 +226,7 @@ public class JavaClass {
 		}
 		return filtered.toArray(new Method[0]);
 	}
-	
+
 	private JavaMethod[] toJavaMethods(Method[] declaredMethods) {
 		JavaMethod[] methods = new JavaMethod[declaredMethods.length];
 		for(int i = 0; i < declaredMethods.length; i++) {
@@ -333,7 +263,7 @@ public class JavaClass {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        JavaClass other = (JavaClass) obj;
+        cn.org.rapid_framework.generator.provider.java.model.JavaClass other = (cn.org.rapid_framework.generator.provider.java.model.JavaClass) obj;
         if (clazz == null) {
             if (other.clazz != null)
                 return false;

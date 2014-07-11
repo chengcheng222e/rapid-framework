@@ -1,21 +1,9 @@
 package cn.org.rapid_framework.generator.util;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+
 /**
  * 
  * @author badqiu
@@ -55,17 +43,12 @@ public class IOHelper {
 		Reader in = new FileReader(file);
 		StringWriter out = new StringWriter();
 		copy(in,out);
-		in.close();
 		return out.toString();
 	}
 	
 	public static String readFile(File file,String encoding) throws IOException {
 		InputStream inputStream = new FileInputStream(file);
-		try {
-		    return toString(encoding, inputStream);
-		}finally{
-		    inputStream.close();
-		}
+		return toString(encoding, inputStream);
 	}
 
 	public static String toString(InputStream inputStream) throws UnsupportedEncodingException, IOException {

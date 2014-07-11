@@ -1,8 +1,8 @@
 package cn.org.rapid_framework.generator.provider.db.sql.model;
 
 import cn.org.rapid_framework.generator.provider.db.table.model.Column;
-import cn.org.rapid_framework.generator.util.BeanHelper;
 import cn.org.rapid_framework.generator.util.StringHelper;
+import cn.org.rapid_framework.generator.util.typemapping.JavaPrimitiveTypeMapping;
 
 public class SqlParameter extends Column {
     	String parameterClass;
@@ -17,11 +17,10 @@ public class SqlParameter extends Column {
     	public SqlParameter() {}
 
         public SqlParameter(Column param) {
-        	super(param);
-            BeanHelper.copyProperties(this, param);
+            super(param);
         }
         
-    	public SqlParameter(SqlParameter param) {
+    	public SqlParameter(cn.org.rapid_framework.generator.provider.db.sql.model.SqlParameter param) {
     	    super(param);
     		this.isListParam = param.isListParam;
     		this.paramName = param.paramName;
@@ -45,7 +44,12 @@ public class SqlParameter extends Column {
 
 		public String getParameterClass() {
 		    if(StringHelper.isNotBlank(parameterClass)) return parameterClass;
-		    return getPossibleShortJavaType();
+		    return getSimpleJavaType();
+        }
+
+		public String getPrimitiveParameterClass() {
+		    if(StringHelper.isNotBlank(parameterClass)) return JavaPrimitiveTypeMapping.getPrimitiveType(parameterClass);
+		    return getPrimitiveJavaType();
         }
 		
         public void setParameterClass(String parameterClass) {
@@ -54,6 +58,10 @@ public class SqlParameter extends Column {
 
         public String getPreferredParameterJavaType() {
 		    return toListParam(getParameterClass());
+		}
+
+        public String getPreferredPrimitiveParameterJavaType() {
+		    return toListParam(getPrimitiveParameterClass());
 		}
         
 		private String toListParam(String parameterClassName) {
@@ -125,8 +133,8 @@ public class SqlParameter extends Column {
 		public boolean equals(Object obj) {
 			if(obj == this) return true;
 			if(obj == null) return false;
-			if(obj instanceof SqlParameter) {
-				SqlParameter other = (SqlParameter)obj;
+			if(obj instanceof cn.org.rapid_framework.generator.provider.db.sql.model.SqlParameter) {
+				cn.org.rapid_framework.generator.provider.db.sql.model.SqlParameter other = (cn.org.rapid_framework.generator.provider.db.sql.model.SqlParameter)obj;
 				return paramName.equals(other.getParamName());
 			}else {
 				return false;

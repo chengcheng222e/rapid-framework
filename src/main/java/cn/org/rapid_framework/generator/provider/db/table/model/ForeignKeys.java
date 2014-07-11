@@ -13,14 +13,14 @@ import cn.org.rapid_framework.generator.util.ListHashtable;
  * and also a Hashtable of foreign keys for each table 
  * 
  */
-public class ForeignKeys  implements java.io.Serializable{
+public class ForeignKeys  {
 	
-	protected Table parentTable;  //宿主表
+	protected cn.org.rapid_framework.generator.provider.db.table.model.Table parentTable;  //宿主表
 	protected ListHashtable associatedTables;
 	/**
 	 * Constructor for Foreign Keys
 	 */
-	public ForeignKeys(Table aTable) {
+	public ForeignKeys(cn.org.rapid_framework.generator.provider.db.table.model.Table aTable) {
 		super();
 		parentTable      = aTable;
 		associatedTables = new ListHashtable();
@@ -39,10 +39,10 @@ public class ForeignKeys  implements java.io.Serializable{
 			tbl = new ForeignKey(parentTable,tableName);
 			associatedTables.put(tableName,tbl);
 		}
-		 
+
 		tbl.addColumn(columnName, parentColumn, seq);
 	}
-	
+
 
 	/**
 	 * @return Returns the associatedTables.

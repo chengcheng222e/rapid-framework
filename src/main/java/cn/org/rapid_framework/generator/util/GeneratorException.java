@@ -36,12 +36,12 @@ public class GeneratorException extends RuntimeException{
 		this.exceptions = exceptions;
 	}
 	
-	public GeneratorException add(Exception e) {
+	public cn.org.rapid_framework.generator.util.GeneratorException add(Exception e) {
 		exceptions.add(e);
 		return this;
 	}
 	
-	public GeneratorException addAll(List<Exception> excetpions) {
+	public cn.org.rapid_framework.generator.util.GeneratorException addAll(List<Exception> excetpions) {
 		exceptions.addAll(excetpions);
 		return this;
 	}

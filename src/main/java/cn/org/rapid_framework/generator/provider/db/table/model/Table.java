@@ -1,41 +1,37 @@
 package cn.org.rapid_framework.generator.provider.db.table.model;
 
 
+import cn.org.rapid_framework.generator.GeneratorProperties;
+import cn.org.rapid_framework.generator.provider.db.table.TableFactory;
+import cn.org.rapid_framework.generator.util.StringHelper;
+
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import cn.org.rapid_framework.generator.GeneratorProperties;
-import cn.org.rapid_framework.generator.provider.db.table.TableFactory;
-import cn.org.rapid_framework.generator.util.StringHelper;
 /**
  * 用于生成代码的Table对象.对应数据库的table
  * @author badqiu
  * @email badqiu(a)gmail.com
  */
-public class Table implements java.io.Serializable,Cloneable {
+public class Table {
 
 	String sqlName;
 	String remarks;
 	String className;
-	
 	/** the name of the owner of the synonym if this table is a synonym */
 	private String ownerSynonymName = null;
-	/** real table name for oracle SYNONYM */
-	private String tableSynonymName = null; 
-	
 	LinkedHashSet<Column> columns = new LinkedHashSet<Column>();
 	List<Column> primaryKeyColumns = new ArrayList<Column>();
 	
-	
 	public Table() {}
 	
-	public Table(Table t) {
+	public Table(cn.org.rapid_framework.generator.provider.db.table.model.Table t) {
 		setSqlName(t.getSqlName());
 		this.remarks = t.getRemarks();
-		this.className = t.getClassName();
+		this.className = t.getSqlName();
 		this.ownerSynonymName = t.getOwnerSynonymName();
 		this.columns = t.getColumns();
 		this.primaryKeyColumns = t.getPrimaryKeyColumns();
@@ -56,13 +52,7 @@ public class Table implements java.io.Serializable,Cloneable {
 	public void setOwnerSynonymName(String ownerSynonymName) {
 		this.ownerSynonymName = ownerSynonymName;
 	}
-	public String getTableSynonymName() {
-		return tableSynonymName;
-	}
-	public void setTableSynonymName(String tableSynonymName) {
-		this.tableSynonymName = tableSynonymName;
-	}
-
+	
 	/** 使用 getPkColumns() 替换*/
 	@Deprecated
 	public List<Column> getPrimaryKeyColumns() {
@@ -84,7 +74,7 @@ public class Table implements java.io.Serializable,Cloneable {
 	public static String removeTableSqlNamePrefix(String sqlName) {
 		String prefixs = GeneratorProperties.getProperty("tableRemovePrefixes", "");
 		for(String prefix : prefixs.split(",")) {
-			String removedPrefixSqlName = StringHelper.removePrefix(sqlName, prefix,true);
+			String removedPrefixSqlName = StringHelper.removePrefix(sqlName, prefix, true);
 			if(!removedPrefixSqlName.equals(sqlName)) {
 				return removedPrefixSqlName;
 			}
@@ -113,10 +103,9 @@ public class Table implements java.io.Serializable,Cloneable {
 	public String getClassName() {
 	    if(StringHelper.isBlank(className)) {
 	        String removedPrefixSqlName = removeTableSqlNamePrefix(sqlName);
-	        return StringHelper.makeAllWordFirstLetterUpperCase(StringHelper.toUnderscoreName(removedPrefixSqlName));
-	    }else {
-	    	return className;
+	        className = StringHelper.makeAllWordFirstLetterUpperCase(StringHelper.toUnderscoreName(removedPrefixSqlName));
 	    }
+		return className;
 	}
 	/** 数据库中表的别名，等价于:  getRemarks().isEmpty() ? getClassName() : getRemarks() */
 	public String getTableAlias() {
@@ -277,7 +266,7 @@ public class Table implements java.io.Serializable,Cloneable {
 		List results = new ArrayList();
 		for(Column c : getColumns()) {
 			String sqlname = c.getSqlName().toLowerCase();
-			if(StringHelper.contains(sqlname,ignoreKeywords.split(","))) {
+			if(StringHelper.contains(sqlname, ignoreKeywords.split(","))) {
 				continue;
 			}
 			results.add(c);
@@ -347,15 +336,6 @@ public class Table implements java.io.Serializable,Cloneable {
 	
 	public String toString() {
 		return "Database Table:"+getSqlName()+" to ClassName:"+getClassName();
-	}
-	
-	public Object clone() {
-		try {
-			return super.clone();
-		} catch (CloneNotSupportedException e) {
-			//ignore
-			return null;
-		}
 	}
 	
 	String catalog = TableFactory.getInstance().getCatalog();

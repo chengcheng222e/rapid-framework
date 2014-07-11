@@ -1,9 +1,9 @@
 package cn.org.rapid_framework.generator.util.sqlparse;
 
+import cn.org.rapid_framework.generator.util.StringHelper;
+
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-
-import cn.org.rapid_framework.generator.util.StringHelper;
 
 public class ResultSetMetaDataHolder {
 	public ResultSetMetaDataHolder() {

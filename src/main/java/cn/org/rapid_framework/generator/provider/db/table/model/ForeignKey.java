@@ -5,28 +5,28 @@
 package cn.org.rapid_framework.generator.provider.db.table.model;
 
 
-import java.util.List;
-
 import cn.org.rapid_framework.generator.provider.db.table.TableFactory;
 import cn.org.rapid_framework.generator.util.ListHashtable;
 import cn.org.rapid_framework.generator.util.StringHelper;
+
+import java.util.List;
 
 /**
  * @author chris
  *
  */
-public class ForeignKey implements java.io.Serializable{
+public class ForeignKey {
 
 	
 	protected String   relationShip   = null;
 	protected String   firstRelation  = null;
 	protected String   secondRelation = null;
-	protected Table parentTable ;
+	protected cn.org.rapid_framework.generator.provider.db.table.model.Table parentTable ;
 	protected String   tableName;
 	protected ListHashtable columns ;
 	protected ListHashtable parentColumns;
-	
-	public ForeignKey(Table aTable, String tblName) {
+
+	public ForeignKey(cn.org.rapid_framework.generator.provider.db.table.model.Table aTable, String tblName) {
 		super();
 		parentTable = aTable;
 		tableName   = tblName;
@@ -65,20 +65,20 @@ public class ForeignKey implements java.io.Serializable{
 		return columns;
 	}
 	/**
-	 * 
+	 *
 	 */
 	private void initRelationship() {
 		firstRelation   = "";
 		secondRelation  = "";
-		Table foreignTable = null;
+		cn.org.rapid_framework.generator.provider.db.table.model.Table foreignTable = null;
 		try {
-			foreignTable = (Table) TableFactory.getInstance().getTable(tableName);
+			foreignTable = (cn.org.rapid_framework.generator.provider.db.table.model.Table) TableFactory.getInstance().getTable(tableName);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		List parentPrimaryKeys    = parentTable.getPrimaryKeyColumns();
 		List foreignPrimaryKeys   = foreignTable.getPrimaryKeyColumns();
-		
+
 		if (hasAllPrimaryKeys(parentPrimaryKeys,parentColumns))
 			firstRelation = "one";
 		else
@@ -90,7 +90,7 @@ public class ForeignKey implements java.io.Serializable{
 			secondRelation = "many";
 
 		relationShip = firstRelation + "-to-" + secondRelation;
-		 
+
 	}
 	private boolean hasAllPrimaryKeys(List pkeys, ListHashtable cols) {
 		boolean hasAll = true;
@@ -98,14 +98,14 @@ public class ForeignKey implements java.io.Serializable{
 		int numKeys = pkeys.size();
 		if (numKeys != cols.size())
 			return false;
-		
+
 		for (int i=0;i<numKeys;i++) {
 			Column col = (Column) pkeys.get(i);
 			String colname = col.getColumnName();
 			if (!cols.contains(colname))
 				return false;
 		}
-		
+
 		return hasAll;
 	}
 	public boolean isParentColumnsFromPrimaryKey() {
@@ -155,10 +155,10 @@ public class ForeignKey implements java.io.Serializable{
 			initRelationship();
 		return firstRelation;
 	}
-	public Table getSqlTable() {
-		Table table = null;
+	public cn.org.rapid_framework.generator.provider.db.table.model.Table getSqlTable() {
+		cn.org.rapid_framework.generator.provider.db.table.model.Table table = null;
 		try {
-			table = (Table) TableFactory.getInstance().getTable(tableName);
+			table = (cn.org.rapid_framework.generator.provider.db.table.model.Table) TableFactory.getInstance().getTable(tableName);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -213,7 +213,7 @@ public class ForeignKey implements java.io.Serializable{
 	 * @author badqiu
 	 *
 	 */
-	public static class ReferenceKey implements java.io.Serializable{
+	public static class ReferenceKey {
 		public String schemaName;
 		public String tableName;
 		public String columnSqlName;

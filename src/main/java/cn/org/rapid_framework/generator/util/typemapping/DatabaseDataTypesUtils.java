@@ -3,6 +3,7 @@ package cn.org.rapid_framework.generator.util.typemapping;
 
 import java.sql.Types;
 import java.util.HashMap;
+
 /**
  * 
  * @author badqiu

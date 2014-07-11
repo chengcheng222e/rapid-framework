@@ -16,14 +16,9 @@
 
 package cn.org.rapid_framework.generator.util.sqlparse;
 
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 
 
 /**
@@ -68,11 +63,11 @@ public abstract class NamedParameterUtils {
 	 * @param sql the SQL statement
 	 * @return the parsed statement, represented as ParsedSql instance
 	 */
-	public static ParsedSql parseSqlStatement(String sql) throws IllegalArgumentException {
+	public static cn.org.rapid_framework.generator.util.sqlparse.ParsedSql parseSqlStatement(String sql) {
 		if(sql == null ) new IllegalArgumentException("SQL must not be null");
 
 		Set<String> namedParameters = new HashSet<String>();
-		ParsedSql parsedSql = new ParsedSql(sql);
+		cn.org.rapid_framework.generator.util.sqlparse.ParsedSql parsedSql = new cn.org.rapid_framework.generator.util.sqlparse.ParsedSql(sql);
 
 		char[] statement = sql.toCharArray();
 		int namedParameterCount = 0;
@@ -106,9 +101,9 @@ public abstract class NamedParameterUtils {
 						namedParameters.add(parameter);
 						namedParameterCount++;
 					}
-					
+
 					String removedPrefixAndSuffixParameter = removePrefixAndSuffix(c,parameter,sql); //add by badqiu
-					
+
 					parsedSql.addNamedParameter(removedPrefixAndSuffixParameter,c+parameter, i, j);
 					totalParameterCount++;
 				}
@@ -134,7 +129,7 @@ public abstract class NamedParameterUtils {
 		if(startPrifix == ':' || startPrifix == '&') {
 			return parameter;
 		}
-		
+
 		//for ibatis3
 		if(parameter.startsWith("{") || parameter.endsWith("}")) {
 			if(parameter.startsWith("{") && parameter.endsWith("}") ) {
@@ -142,8 +137,7 @@ public abstract class NamedParameterUtils {
 			}else {
 				throw new IllegalArgumentException("parameter error:"+parameter+",must wrap with {param},sql:"+sql);
 			}
-			//for foreach usernames[index] and usernames[${index}]
-			return parameter.replaceAll("\\[.*?\\]", ""); 
+			return parameter;
 		}
 
 		//for ibatis2
@@ -153,11 +147,7 @@ public abstract class NamedParameterUtils {
 			}else {
 				throw new IllegalArgumentException("parameter error:"+parameter+",must wrap with #param#,sql:"+sql);
 			}
-			if(parameter.endsWith("[]")) {
-			    return parameter.substring(0,parameter.length() - 2);
-			}else {
-			    return parameter;
-			}
+			return parameter;
 		}
 		if(startPrifix == '$') {
 			if(parameter.endsWith("$")) {
@@ -167,7 +157,7 @@ public abstract class NamedParameterUtils {
 			}
 			return parameter;
 		}
-		
+
 		throw new IllegalArgumentException("cannot reach this");
 	}
 
@@ -218,7 +208,7 @@ public abstract class NamedParameterUtils {
 		}
 		return position;
 	}
-	
+
 	/**
 	 * Parse the SQL statement and locate any placeholders or named parameters.
 	 * Named parameters are substituted for a JDBC placeholder and any select list

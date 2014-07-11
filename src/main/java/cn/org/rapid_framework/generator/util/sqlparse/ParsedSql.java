@@ -46,7 +46,7 @@ public class ParsedSql {
 
 
 	/**
-	 * Create a new instance of the {@link ParsedSql} class.
+	 * Create a new instance of the {@link cn.org.rapid_framework.generator.util.sqlparse.ParsedSql} class.
 	 * @param originalSql the SQL statement that is being (or is to be) parsed
 	 */
 	ParsedSql(String originalSql) {

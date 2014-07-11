@@ -21,7 +21,6 @@ import java.util.Properties;
 import java.util.Set;
 
 
-
 /**
  * copy from springframework
  * 
@@ -164,7 +163,7 @@ public class PropertyPlaceholderHelper {
 		int index = startIndex + this.placeholderPrefix.length();
 		int withinNestedPlaceholder = 0;
 		while (index < buf.length()) {
-			if (StringHelper.substringMatch(buf, index, this.placeholderSuffix)) {
+			if (cn.org.rapid_framework.generator.util.StringHelper.substringMatch(buf, index, this.placeholderSuffix)) {
 				if (withinNestedPlaceholder > 0) {
 					withinNestedPlaceholder--;
 					index = index + this.placeholderPrefix.length() - 1;
@@ -187,7 +186,7 @@ public class PropertyPlaceholderHelper {
 
 	/**
 	 * Strategy interface used to resolve replacement values for placeholders contained in Strings.
-	 * @see PropertyPlaceholderHelper
+	 * @see cn.org.rapid_framework.generator.util.PropertyPlaceholderHelper
 	 */
 	public static interface PlaceholderResolver {
 

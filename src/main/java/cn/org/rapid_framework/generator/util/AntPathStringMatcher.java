@@ -23,7 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Package-protected helper class for {@link AntPathMatcher}. Tests whether or not a string matches against a pattern
+ * Package-protected helper class for {@link cn.org.rapid_framework.generator.util.AntPathMatcher}. Tests whether or not a string matches against a pattern
  * using a regular expression.
  *
  * <p>The pattern may contain special characters: '*' means zero or more characters; '?' means one and only one

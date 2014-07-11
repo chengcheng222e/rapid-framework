@@ -7,15 +7,12 @@
  */
 package cn.org.rapid_framework.generator.provider.java.model;
 
+import cn.org.rapid_framework.generator.util.StringHelper;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
-
-import cn.org.rapid_framework.generator.util.StringHelper;
-import cn.org.rapid_framework.generator.util.typemapping.JavaImport;
 
 /**
  * 
@@ -28,8 +25,6 @@ public class JavaMethod {
 	
 	public JavaMethod(Method method, JavaClass clazz) {
 		super();
-		if(method == null) throw new IllegalArgumentException("method must be not null");
-		if(clazz == null) throw new IllegalArgumentException("clazz must be not null");
 		this.method = method;
 		this.clazz = clazz;
 	}
@@ -45,7 +40,7 @@ public class JavaMethod {
 	public JavaClass getReturnType() {
 		return new JavaClass(method.getReturnType());
 	}
-	
+
 	public Annotation[] getAnnotations() {
 		return method.getAnnotations();
 	}
@@ -54,15 +49,7 @@ public class JavaMethod {
 		return method.isBridge();
 	}
 
-    public List<JavaClass> getExceptionTypes() {
-        List<JavaClass> result = new ArrayList();
-        for(Class c : method.getExceptionTypes()) {
-            result.add(new JavaClass(c));
-        }
-        return result;
-    }
-
-    public boolean isSynthetic() {
+	public boolean isSynthetic() {
 		return method.isSynthetic();
 	}
 
@@ -70,14 +57,6 @@ public class JavaMethod {
 		return method.isVarArgs();
 	}
 
-	public Set<JavaClass> getImportClasses() {
-		Set<JavaClass> set = new LinkedHashSet<JavaClass>();
-        JavaImport.addImportClass(set,method.getParameterTypes());
-        JavaImport.addImportClass(set,method.getExceptionTypes());
-        JavaImport.addImportClass(set, method.getReturnType());
-        return set;
-	}
-	
 	public List<MethodParameter> getParameters() {
 		Class[] parameters  = method.getParameterTypes();
 		List<MethodParameter> results = new ArrayList<MethodParameter>();
@@ -105,20 +84,13 @@ public class JavaMethod {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        JavaMethod other = (JavaMethod) obj;
+        cn.org.rapid_framework.generator.provider.java.model.JavaMethod other = (cn.org.rapid_framework.generator.provider.java.model.JavaMethod) obj;
         if (method == null) {
             if (other.method != null)
                 return false;
         } else if (!method.equals(other.method))
             return false;
         return true;
-    }
-    
-    public boolean isPropertyMethod() {
-    	if(getMethodName().startsWith("set") || getMethodName().startsWith("get") || (getMethodName().startsWith("is") && getReturnType().isBooleanType())) {
-    		return true;
-    	}
-    	return false;
     }
 
     public String toString() {

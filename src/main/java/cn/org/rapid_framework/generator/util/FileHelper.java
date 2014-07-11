@@ -1,21 +1,11 @@
 package cn.org.rapid_framework.generator.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import cn.org.rapid_framework.generator.GeneratorProperties;
+
+import java.io.*;
+import java.net.URL;
+import java.util.*;
+
 /**
  * 
  * @author badqiu
@@ -47,7 +37,7 @@ public class FileHelper {
 	public static InputStream getInputStream(String file) throws FileNotFoundException {
 		InputStream inputStream = null;
 		if(file.startsWith("classpath:")) {
-			inputStream = FileHelper.class.getClassLoader().getResourceAsStream(file.substring("classpath:".length()));
+			inputStream = cn.org.rapid_framework.generator.util.FileHelper.class.getClassLoader().getResourceAsStream(file.substring("classpath:".length()));
 		}else {
 			inputStream = new FileInputStream(file);
 		}
@@ -71,13 +61,6 @@ public class FileHelper {
 		return result;
 	}
 
-    public static File parentMkdir(String file) {
-        if(file == null) throw new IllegalArgumentException("file must be not null");
-        File result = new File(file);
-        parnetMkdir(result);
-        return result;
-    }
-	   
 	public static void parnetMkdir(File outputFile) {
 		if(outputFile.getParentFile() != null) {
 			outputFile.getParentFile().mkdirs();

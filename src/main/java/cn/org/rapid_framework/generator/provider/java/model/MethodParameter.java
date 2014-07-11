@@ -1,5 +1,9 @@
 package cn.org.rapid_framework.generator.provider.java.model;
 
+import cn.org.rapid_framework.generator.util.IOHelper;
+import cn.org.rapid_framework.generator.util.StringHelper;
+import cn.org.rapid_framework.generator.util.paranamer.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -8,22 +12,13 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import cn.org.rapid_framework.generator.util.IOHelper;
-import cn.org.rapid_framework.generator.util.StringHelper;
-import cn.org.rapid_framework.generator.util.paranamer.AdaptiveParanamer;
-import cn.org.rapid_framework.generator.util.paranamer.BytecodeReadingParanamer;
-import cn.org.rapid_framework.generator.util.paranamer.CachingParanamer;
-import cn.org.rapid_framework.generator.util.paranamer.DefaultParanamer;
-import cn.org.rapid_framework.generator.util.paranamer.JavaSourceParanamer;
-import cn.org.rapid_framework.generator.util.paranamer.Paranamer;
-
 
 public class MethodParameter {
 	int paramIndex = -1; // paramIndex,从1开始
 	String paramName; //paramName名称
 	JavaClass paramClass; //parameter的类型
 	JavaMethod method; //与parameter相关联的method
-	
+
 	public MethodParameter(int paramIndex, JavaMethod method,JavaClass paramClazz) {
 		super();
 		this.method = method;
@@ -34,7 +29,7 @@ public class MethodParameter {
     public JavaMethod getMethod() {
 		return method;
 	}
-    
+
 	public String getName() {
 	    if(paramIndex < 0) return null;
 		String[] parameterNames = lookupParameterNamesByParanamer();
@@ -45,18 +40,18 @@ public class MethodParameter {
 		        return "param"+paramIndex;
 		    }else {
 		        return StringHelper.uncapitalize(paramClass.getClassName());
-		    }			
+		    }
 		}else {
 			return parameterNames[paramIndex - 1];
 		}
 	}
-	
+
 	public static Paranamer paranamer = setParanamer(Thread.currentThread().getContextClassLoader());
 	public static Paranamer setParanamer(ClassLoader classLoader) {
 		paranamer = new CachingParanamer(new AdaptiveParanamer(new DefaultParanamer(),new BytecodeReadingParanamer(),new JavaSourceParanamer(classLoader)) );
 		return paranamer;
 	}
-	
+
 	private String[] lookupParameterNamesByParanamer() {
 		return paranamer.lookupParameterNames(method.method,false);
 	}
@@ -96,7 +91,7 @@ public class MethodParameter {
     public boolean isArray() {
     	return paramClass.isArray();
     }
-    
+
 	public String getCanonicalName() {
 		return paramClass.getCanonicalName();
 	}
@@ -162,6 +157,7 @@ public class MethodParameter {
 
         public String[] parseJavaFileForParamNames(Method method,String content) {
             Pattern methodPattern = Pattern.compile("(?s)"+method.getName()+"\\s*\\("+getParamsPattern(method)+"\\)\\s*\\{");
+    	    List<String> methodParams = new ArrayList();
     	    Matcher m = methodPattern.matcher(content);
     	    List paramNames = new ArrayList();
     	    while(m.find()) {

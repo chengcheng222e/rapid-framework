@@ -1,32 +1,16 @@
 package cn.org.rapid_framework.generator.provider.db.table;
 
 
-import java.io.File;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import cn.org.rapid_framework.generator.GeneratorProperties;
-import cn.org.rapid_framework.generator.provider.db.DataSourceProvider;
 import cn.org.rapid_framework.generator.provider.db.table.model.Column;
 import cn.org.rapid_framework.generator.provider.db.table.model.Table;
-import cn.org.rapid_framework.generator.util.BeanHelper;
-import cn.org.rapid_framework.generator.util.FileHelper;
-import cn.org.rapid_framework.generator.util.GLogger;
-import cn.org.rapid_framework.generator.util.StringHelper;
-import cn.org.rapid_framework.generator.util.XMLHelper;
+import cn.org.rapid_framework.generator.util.*;
 import cn.org.rapid_framework.generator.util.XMLHelper.NodeData;
+
+import java.io.File;
+import java.sql.*;
+import java.util.*;
+
 /**
  * 
  * 根据数据库表的元数据(metadata)创建Table对象
@@ -41,13 +25,23 @@ import cn.org.rapid_framework.generator.util.XMLHelper.NodeData;
 public class TableFactory {
 	
 	private DbHelper dbHelper = new DbHelper();
-	private static TableFactory instance = null;
+	private Connection connection;
+	private static cn.org.rapid_framework.generator.provider.db.table.TableFactory instance = null;
 	
 	private TableFactory() {
 	}
+
+	private void loadJdbcDriver() {
+		String driver = GeneratorProperties.getRequiredProperty("jdbc.driver");
+		try {
+			Class.forName(driver);
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException("not found jdbc driver class:["+driver+"]",e);
+		}
+	}
 	
-	public synchronized static TableFactory getInstance() {
-		if(instance == null) instance = new TableFactory();
+	public synchronized static cn.org.rapid_framework.generator.provider.db.table.TableFactory getInstance() {
+		if(instance == null) instance = new cn.org.rapid_framework.generator.provider.db.table.TableFactory();
 		return instance;
 	}
 	
@@ -59,8 +53,16 @@ public class TableFactory {
 		return GeneratorProperties.getNullIfBlank("jdbc.schema");
 	}
 
-	private Connection getConnection() {
-		return DataSourceProvider.getConnection();
+	public Connection getConnection() {
+		try {
+			if(connection == null || connection.isClosed()) {
+				loadJdbcDriver();
+				connection = DriverManager.getConnection(GeneratorProperties.getRequiredProperty("jdbc.url"), GeneratorProperties.getRequiredProperty("jdbc.username"), GeneratorProperties.getProperty("jdbc.password"));
+			}
+			return connection;
+		}catch(SQLException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public List getAllTables() {
@@ -341,7 +343,7 @@ public class TableFactory {
 	               isUnique,
 	               columnDefaultValue,
 	               remarks);
-	         BeanHelper.copyProperties(column,TableOverrideValuesProvider.getColumnOverrideValues(table,column));
+	         BeanHelper.copyProperties(column, TableOverrideValuesProvider.getColumnOverrideValues(table, column));
 	         columns.add(column);
 	    }
 	    columnRs.close();
@@ -425,11 +427,11 @@ public class TableFactory {
 
 		private static NodeData getTableConfigXmlNodeData0(String tableSqlName) {
 			try {
-				File file = FileHelper.getFileByClassLoader("generator_config/table/"+tableSqlName+".xml");
-				GLogger.trace("getTableConfigXml() load nodeData by tableSqlName:"+tableSqlName+".xml");
+				File file = FileHelper.getFileByClassLoader("generator_config/table/" + tableSqlName + ".xml");
+				GLogger.trace("getTableConfigXml() load nodeData by tableSqlName:" + tableSqlName + ".xml");
 				return new XMLHelper().parseXML(file);
 			}catch(Exception e) {//ignore
-				GLogger.trace("not found config xml for table:"+tableSqlName+", exception:"+e);
+				GLogger.trace("not found config xml for table:" + tableSqlName + ", exception:" + e);
 				return null;
 			}
 		}
@@ -445,13 +447,15 @@ public class TableFactory {
 			}
 		}
 		public boolean isOracleDataBase() {
+			boolean ret = false;
 			try {
-				return DatabaseMetaDataUtils.isOracleDataBase(getMetaData());
-			} catch (SQLException e) {
-				throw new RuntimeException(e);
+				ret = (getMetaData().getDatabaseProductName().toLowerCase()
+						.indexOf("oracle") != -1);
+			} catch (Exception ignore) {
 			}
+			return ret;
 		}
-
+		
 		public String queryForString(String sql) {
 			Statement s = null;
 			ResultSet rs = null;
@@ -467,31 +471,6 @@ public class TableFactory {
 				return null;
 			}finally {
 				close(rs,null,s);
-			}
-		}		
-	}
-	
-	public static class DatabaseMetaDataUtils {
-		public static boolean isOracleDataBase(DatabaseMetaData metadata) {
-			try {
-				boolean ret = false;
-				ret = (metadata.getDatabaseProductName().toLowerCase()
-							.indexOf("oracle") != -1);
-				return ret;
-			}catch(SQLException s) {
-				return false;
-//				throw new RuntimeException(s);
-			}
-		}
-		public static boolean isHsqlDataBase(DatabaseMetaData metadata) {
-			try {
-				boolean ret = false;
-				ret = (metadata.getDatabaseProductName().toLowerCase()
-							.indexOf("hsql") != -1);
-				return ret;
-			}catch(SQLException s) {
-				return false;
-//				throw new RuntimeException(s);
 			}
 		}		
 	}

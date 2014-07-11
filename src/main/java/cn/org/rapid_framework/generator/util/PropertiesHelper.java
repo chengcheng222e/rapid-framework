@@ -1,17 +1,13 @@
 package cn.org.rapid_framework.generator.util;
 
+import cn.org.rapid_framework.generator.GeneratorProperties;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.Map.Entry;
-
-import cn.org.rapid_framework.generator.GeneratorProperties;
 
 public class PropertiesHelper {
 	boolean isSearchSystemProperty = false;
@@ -97,7 +93,7 @@ public class PropertiesHelper {
 		return value;
 	}
 	
-	public PropertiesHelper setProperty(String key,String value) {
+	public cn.org.rapid_framework.generator.util.PropertiesHelper setProperty(String key,String value) {
 		p.setProperty(key, value);
 		return this;
 	}

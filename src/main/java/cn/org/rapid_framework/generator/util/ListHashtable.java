@@ -131,7 +131,7 @@ public class ListHashtable extends Hashtable {
 		x.append("]\n");
 		return x.toString();
 	}
-	public void merge(ListHashtable newTable) {
+	public void merge(cn.org.rapid_framework.generator.util.ListHashtable newTable) {
 		// This merges the newtable with the current one
 		int num = newTable.size();
 		for (int i=0;i<num;i++) {
