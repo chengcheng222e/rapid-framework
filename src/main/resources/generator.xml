@@ -19,8 +19,8 @@
     <!-- 需要移除的表名前缀,使用逗号进行分隔多个前缀,示例值: t_,v_ -->
     <entry key="tableRemovePrefixes"></entry>
 
-    <entry key="jdbc.username">用户名</entry>
-    <entry key="jdbc.password">密码</entry>
+    <entry key="jdbc.username">root</entry>
+    <entry key="jdbc.password">root</entry>
 
     <!-- oracle需要指定jdbc.schema,其它数据库忽略此项配置  -->
     <entry key="jdbc.schema"></entry>
@@ -35,7 +35,7 @@
     <entry key="java_typemapping.java.math.BigDecimal">Long</entry>
 
     <!-- Mysql -->
-    <entry key="jdbc.url">jdbc:mysql://localhost:3306/sms?useUnicode=true&amp;characterEncoding=UTF-8</entry>
+    <entry key="jdbc.url">jdbc:mysql://localhost:3306/oss?useUnicode=true&amp;characterEncoding=UTF-8</entry>
     <entry key="jdbc.driver">com.mysql.jdbc.Driver</entry>
 
 

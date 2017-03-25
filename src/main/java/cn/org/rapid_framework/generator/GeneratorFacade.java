@@ -20,10 +20,12 @@ import java.util.*;
  *
  */
 public class GeneratorFacade {
-	public cn.org.rapid_framework.generator.Generator g = new cn.org.rapid_framework.generator.Generator();
-	public GeneratorFacade(){
-		g.setOutRootDir(GeneratorProperties.getProperty("outRoot"));
-	}
+	public Generator g = new Generator();
+	
+    public GeneratorFacade() {
+        String outRootDir = GeneratorProperties.getProperty("outRoot");
+        g.setOutRootDir(outRootDir);
+    }
 
 	public static void printAllTableNames() throws Exception {
 		PrintUtils.printAllTableNames(TableFactory.getInstance().getAllTables());

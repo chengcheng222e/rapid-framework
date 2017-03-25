@@ -26,7 +26,7 @@ public class TableFactory {
 	
 	private DbHelper dbHelper = new DbHelper();
 	private Connection connection;
-	private static cn.org.rapid_framework.generator.provider.db.table.TableFactory instance = null;
+	private static TableFactory instance = null;
 	
 	private TableFactory() {
 	}
@@ -40,8 +40,8 @@ public class TableFactory {
 		}
 	}
 	
-	public synchronized static cn.org.rapid_framework.generator.provider.db.table.TableFactory getInstance() {
-		if(instance == null) instance = new cn.org.rapid_framework.generator.provider.db.table.TableFactory();
+	public synchronized static TableFactory getInstance() {
+		if(instance == null) instance = new TableFactory();
 		return instance;
 	}
 	
